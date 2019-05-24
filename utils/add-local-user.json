@@ -1,0 +1,12 @@
+{
+ "passwd": {
+    "users": [
+      {
+        "name": "core",
+        "sshAuthorizedKeys": [
+          "ssh-rsa ...."
+        ]
+      }
+    ]
+  }
+}
