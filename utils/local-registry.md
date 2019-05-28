@@ -104,7 +104,13 @@ vi pull-secret.json
 ```
 
 
-5.  Sync/Mirror Images
+5.  Sync/Mirror Images for OCP 4.x
+
+```
+oc adm release mirror --registry-config=./pull-secret.json --from=quay.io/openshift-release-dev/ocp-release:4.1.0-rc.7 --to=bastion.example.com:5000/ocp4poc/openshift4
+```
+
+or
 
 ```
 oc adm release new  -a ./pull-secret.json --from-release=quay.io/openshift-release-dev/ocp-release:4.1.0-rc.6 --mirror=bastion.example.com:5000/openshift4 --to-image=bastion.example.com:5000/openshift4:4.1.0-rc.6
