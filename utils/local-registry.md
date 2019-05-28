@@ -9,7 +9,7 @@ yum install -y docker-distribution skopeo podman
 2. Setup registry configuration
 
 
-  - Generate Self-signed certs
+  - Generate Self-signed certs or obtain cets from your organizations CA
 
     ```
     mkdir -p certs
@@ -34,7 +34,7 @@ yum install -y docker-distribution skopeo podman
         service: registry
     storage:
         cache:
-            layerinfo: inmemory
+            blobdescriptor: inmemory
         filesystem:
             rootdirectory: /opt/registry
     auth:
