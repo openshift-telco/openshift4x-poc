@@ -68,17 +68,21 @@ customizations() {
 
     # Update Bootstrap with custom network settings
     ./utils/patch-nm-bootstrap.py
-    ./filetranspile -i ${POCDIR}/bootstrap.ign-with-patch -f fake-root-bootstrap -o ${POCDIR}/bootstrap.ign
+#    ./filetranspile -i ${POCDIR}/bootstrap.ign-with-patch -f fake-root-bootstrap -o ${POCDIR}/bootstrap.ign
+    cp ${POCDIR}/bootstrap.ign-with-patch ${POCDIR}/bootstrap.ign
 
     # Update Master nodes config with local user and custom network configs
     jq -s '.[0] * .[1]' ${POCDIR}/master.ign-original   utils/nm-patch.json > ${POCDIR}/master.ign-with-patch
     jq -s '.[0] * .[1]' ${POCDIR}/master.ign-with-patch utils/add-local-user.json > ${POCDIR}/master.ign-with-user
-    ./filetranspile -i ${POCDIR}/master.ign-with-user -f fake-root -o ${POCDIR}/master.ign
+#    ./filetranspile -i ${POCDIR}/master.ign-with-user -f fake-root -o ${POCDIR}/master.ign
+    cp ${POCDIR}/master.ign-with-user ${POCDIR}/master.ign
     
     # Update Worker nodes config with local user and custom network configs
     jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-original   utils/nm-patch.json > ${POCDIR}/worker.ign-with-patch
     jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-with-patch utils/add-local-user.json > ${POCDIR}/worker.ign-with-user
-    ./filetranspile -i ${POCDIR}/worker.ign-with-user -f fake-root -o ${POCDIR}/worker.ign
+#   ./filetranspile -i ${POCDIR}/worker.ign-with-user -f fake-root -o ${POCDIR}/worker.ign
+    cp ${POCDIR}/worker.ign-with-user ${POCDIR}/worker.ign
+
 }
 
 prep_images () {

@@ -1,0 +1,13 @@
+{
+"systemd": {
+   "units": [
+    {
+     "name": "NetworkManager-wait-online.service",
+     "dropins": [{
+       "name": "timeout.conf",
+       "contents": "[Service]\nExecStart=\nExecStart=/usr/bin/nm-online -s -q --timeout=300"
+     }]
+   }
+  ]
+ }
+}
