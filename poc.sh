@@ -4,6 +4,7 @@
 # UPDATE TO MATCH YOUR ENVIRONMENT
 ##############################################################
 
+# OCP_RELEASE=$(curl -s https://quay.io/api/v1/repository/openshift-release-dev/ocp-release/tag/\?limit=1\&page=1\&onlyActiveTags=true | jq -r '.tags[].name')
 OCP_RELEASE=4.1.0-rc.7
 RHCOS_BUILD=410.8.20190516.0
 WEBROOT=/usr/share/nginx/html/
@@ -14,7 +15,7 @@ POCDIR=ocp4poc
 ##############################################################
 
 usage() {
-    echo -e "Usage: $0 [ clean | ignition | custom | prep | bootstrap | install | approve ] "
+    echo -e "Usage: $0 [ clean | ignition | custom | prep_ign | bootstrap | install | approve ] "
     echo -e "\t\t(extras) [ tools | images | prep_images ]"
 }
 
@@ -25,6 +26,8 @@ get_images() {
     curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-installer.iso
     curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-metal-bios.raw.gz
     curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz
+
+    # Not applicable for bare-metal deployment
     ##curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-vmware.ova
 
     curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_RELEASE}/openshift-client-linux-${OCP_RELEASE}.tar.gz 
@@ -34,8 +37,10 @@ get_images() {
 }
 
 install_tools() {
-#    rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-#    yum -y jq oniguruma nginx 
+    echo -e "NOTE: Tools used by $0 are not installed by this script. Manually install one of the following options:"
+    echo -e "\nIf using NGINX:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma nginx"
+    echo -e "\t Note: May need EPEL repo: rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+    echo -e "\nIf using HTTPD:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma httpd\n"
 }
 
 clean() {
@@ -91,7 +96,7 @@ prep_images () {
     tree ${WEBROOT}/metal/
 }
 
-prep () {
+prep_ign () {
     echo "Installing Ignition files into web path"
     cp -f ${POCDIR}/*.ign ${WEBROOT}
     tree ${WEBROOT}
@@ -115,7 +120,7 @@ approve () {
     ./oc get csr -ojson | jq -r '.items[] | select(.status == {} ) | .metadata.name' | xargs ./oc adm certificate approve
 }
 
-# First param
+# Capture First param
 key="$1"
 
 case $key in
