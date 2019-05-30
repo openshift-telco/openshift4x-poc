@@ -1,14 +1,20 @@
 #!/bin/bash
 
-key="$1"
+##############################################################
+# UPDATE TO MATCH YOUR ENVIRONMENT
+##############################################################
 
-OCP_RELEASE=4.1.0-rc.5
+OCP_RELEASE=4.1.0-rc.7
 RHCOS_BUILD=410.8.20190516.0
 WEBROOT=/usr/share/nginx/html/
 POCDIR=ocp4poc
 
+##############################################################
+# DO NOT MODIFY AFTER THIS LINE
+##############################################################
+
 usage() {
-    echo -e "Usage: $0 [ clean | ignition | custom | prep | bootstrap | install ] "
+    echo -e "Usage: $0 [ clean | ignition | custom | prep | bootstrap | install | approve ] "
     echo -e "\t\t(extras) [ tools | images | prep_images ]"
 }
 
@@ -21,8 +27,8 @@ get_images() {
     curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz
     ##curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-vmware.ova
 
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux-${OCP_RELEASE}.tar.gz 
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-linux-${OCP_RELEASE}.tar.gz
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_RELEASE}/openshift-client-linux-${OCP_RELEASE}.tar.gz 
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_RELEASE}/openshift-install-linux-${OCP_RELEASE}.tar.gz
 
     cd ..
 }
@@ -30,8 +36,6 @@ get_images() {
 install_tools() {
 #    rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 #    yum -y jq oniguruma nginx 
-    # Download utility to customize Ignition file
-    curl -O https://raw.githubusercontent.com/ashcrow/filetranspiler/master/filetranspile
 }
 
 clean() {
@@ -51,7 +55,7 @@ ignition() {
 }
 
 customizations() {
-    echo "Update Ignition files to create local user"
+    echo "Update Ignition files to apply NM patch and create local user"
     if [[ -f ${POCDIR}/bootstrap.ign-bkup ]]; then
         cp -f ${POCDIR}/bootstrap.ign-bkup ${POCDIR}/bootstrap.ign
         cp -f ${POCDIR}/master.ign-bkup ${POCDIR}/master.ign
@@ -68,21 +72,17 @@ customizations() {
 
     # Update Bootstrap with custom network settings
     ./utils/patch-nm-bootstrap.py
-#    ./filetranspile -i ${POCDIR}/bootstrap.ign-with-patch -f fake-root-bootstrap -o ${POCDIR}/bootstrap.ign
     cp ${POCDIR}/bootstrap.ign-with-patch ${POCDIR}/bootstrap.ign
 
     # Update Master nodes config with local user and custom network configs
     jq -s '.[0] * .[1]' ${POCDIR}/master.ign-original   utils/nm-patch.json > ${POCDIR}/master.ign-with-patch
     jq -s '.[0] * .[1]' ${POCDIR}/master.ign-with-patch utils/add-local-user.json > ${POCDIR}/master.ign-with-user
-#    ./filetranspile -i ${POCDIR}/master.ign-with-user -f fake-root -o ${POCDIR}/master.ign
     cp ${POCDIR}/master.ign-with-user ${POCDIR}/master.ign
     
     # Update Worker nodes config with local user and custom network configs
     jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-original   utils/nm-patch.json > ${POCDIR}/worker.ign-with-patch
     jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-with-patch utils/add-local-user.json > ${POCDIR}/worker.ign-with-user
-#   ./filetranspile -i ${POCDIR}/worker.ign-with-user -f fake-root -o ${POCDIR}/worker.ign
     cp ${POCDIR}/worker.ign-with-user ${POCDIR}/worker.ign
-
 }
 
 prep_images () {
@@ -108,6 +108,15 @@ install () {
     echo "Assuming PXE boot process in progress"
     ./openshift-install wait-for install-complete --dir=${POCDIR} --log-level debug
 }
+
+approve () {
+    export KUBECONFIG=${POCDIR}/auth/kubeconfig
+    ./oc get csr
+    ./oc get csr -ojson | jq -r '.items[] | select(.status == {} ) | .metadata.name' | xargs ./oc adm certificate approve
+}
+
+# First param
+key="$1"
 
 case $key in
     tools)
@@ -137,7 +146,14 @@ case $key in
     install)
         install
         ;;
+    approve)
+        approve
+        ;;
     *)
         usage
         ;;
 esac
+
+##############################################################
+# END OF FILE
+##############################################################

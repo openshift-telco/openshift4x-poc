@@ -1,0 +1,39 @@
+UI vesamenu.c32
+#DEFAULT menu.c32
+DEFAULT LOCAL
+PROMPT 0
+TIMEOUT 200
+ONTIMEOUT LOCAL
+
+#MENU BACKGROUND rhcos/ocp4.png
+MENU TITLE PXE BOOT MENU
+
+LABEL WORKER-UEFI
+  MENU LABEL ^1 WORKER (UEFI)
+  KERNEL rhcos/rhcos-kernel
+  APPEND rd.neednet=1 initrd=rhcos/rhcos-initramfs.img console=tty0 coreos.inst=yes coreos.inst.install_dev=sda coreos.inst.ignition_url=http://192.168.1.1:8000/worker.ign coreos.inst.image_url=http://192.168.1.1:8000/metal/rhcos-410.8.20190516.0-metal-uefi.raw.gz ip=eno1:dhcp 
+
+LABEL MASTER-UEFI
+  MENU LABEL ^2 MASTER (UEFI)
+  KERNEL rhcos/rhcos-kernel
+  APPEND rd.neednet=1 initrd=rhcos/rhcos-initramfs.img console=tty0 coreos.inst=yes coreos.inst.install_dev=sda coreos.inst.ignition_url=http://192.168.1.1:8000/master.ign coreos.inst.image_url=http://192.168.1.1:8000/metal/rhcos-410.8.20190516.0-metal-uefi.raw.gz ip=eno1:dhcp 
+
+LABEL BOOTSTRAP-UEFI
+  MENU LABEL ^3 BOOTSTRAP (UEFI)
+  KERNEL rhcos/rhcos-kernel
+  APPEND rd.neednet=1 initrd=rhcos/rhcos-initramfs.img console=tty0 coreos.inst=yes coreos.inst.install_dev=sda coreos.inst.ignition_url=http://192.168.1.1:8000/bootstrap.ign coreos.inst.image_url=http://192.168.1.1:8000/metal/rhcos-410.8.20190516.0-metal-uefi.raw.gz ip=eno1:dhcp 
+
+LABEL LOCAL
+  MENU LABEL ^7 Boot from Local Disk
+  MENU DEFAULT
+  LOCALBOOT 0
+
+LABEL RECOVERY1
+  MENU LABEL ^8 Recovery (initqueue)
+  KERNEL rhcos/rhcos-kernel
+  APPEND rd.break=initqueue  rd.neednet=1 initrd=rhcos/rhcos-initramfs.img console=tty0 ip=eno1:dhcp
+
+LABEL RECOVERY2
+  MENU LABEL ^9 Recovery (pre-mount)
+  KERNEL rhcos/rhcos-kernel
+  APPEND rd.break=pre-mount  rd.neednet=1 initrd=rhcos/rhcos-initramfs.img console=tty0 ip=eno1:dhcp

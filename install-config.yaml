@@ -1,20 +1,22 @@
 apiVersion: v1
 baseDomain: example.com 
 compute:
-- name: worker
+- hyperthreading: Enabled   
+  name: worker
   replicas: 0 
 controlPlane:
-  name: master
-  replicas: 3
-metadata:
+  hyperthreading: Enabled   
   name: ocp4poc 
+  replicas: 3 
+metadata:
+  name: test 
 networking:
   clusterNetworks:
   - cidr: 10.128.0.0/14 
     hostPrefix: 23 
-networkType: OpenShiftSDN
-serviceNetwork: 
-- 172.30.0.0/16
+  networkType: OpenShiftSDN
+  serviceNetwork: 
+  - 172.30.0.0/16
 platform:
   none: {}
 pullSecret: '{"auths": ...}' 
