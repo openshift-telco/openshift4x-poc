@@ -139,8 +139,8 @@ case $key in
     custom|customizations)
         customizations
         ;;
-    prep)
-        prep
+    prep_ign)
+        prep_ign
         ;;
     prep_images)
         prep_images
