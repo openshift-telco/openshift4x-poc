@@ -29,26 +29,36 @@ POCDIR=ocp4poc
 ***NOTE:*** Next instructions assume this has been customized. 
 
 ## Pre-requisites
-- Configure DNS forward and reverse records for all the Nodes
-- Configure DNS entries for the etcd, api and routes as per [documentation](https://docs.openshift.com/container-platform/4.1/installing/installing_bare_metal/installing-bare-metal.html#installation-dns-user-infra_installing-bare-metal)
+### DNS Configuration 
+- Example of [forward DNS records](utils/named-zone.conf) included in the `utils` folder
+- Example of [reverse records](utils/named-reverse-zone.conf) included in the `utils` folder
+- DNS must have entries for:
+  - DNS forward records for all Nodes
+  - DNS reverse records for all the Nodes
+  - DNS entries for special records used by OCP: `etcd`, `etcd srv`, `api`, `api-int`, and `*.apps` wildcard subdomain
 
-  - Example of [forward DNS records](utils/named-zone.conf) included in the `utils` folder
-  - Example of [reverse records](utils/named-reverse-zone.conf) ncluded in the `utils` folder
+Reference official [documentation](https://docs.openshift.com/container-platform/4.1/installing/installing_bare_metal/installing-bare-metal.html#installation-dns-user-infra_installing-bare-metal) for details on special entries required in DNS.
 
-- Setup load balancerconfiguration in pass-through for Kubernetes API (tcp/6443), Machine Server Config (tcp/22623), OpenShift Routers HTTP & HTTPS (tcp/80, tcp/443)
-  
+### Load Balancer Configuration
+- Setup load balancerconfiguration in ***pass-through*** for Kubernetes API (`tcp/6443`), Machine Server Config (`tcp/22623`), OpenShift Routers HTTP and HTTPS (`tcp/80`, `tcp/443`)
+
+Reference Load Balancer configurations availabl in the `utils` folder:
   - Load balancer using [NGINX](utils/nginx.conf)
   - Load balancer using [HAProxy](utils/haproxy.cfg)
 
-# CAVEATS AND MORE CAVEATS
+#  > > > CAVEATS AND THINGS TO KNOW < < <
 
-- WHEN USING A SERVER WITH MULTIPLE NICs:
-  
-  - The PXE APPEND command must specify the exact NIC to use during the PXE boot. For example using `ip=eth2:dhcp` instead of the generic `ip=dhcp`
-  - If there server has too many NIC, the `NetworkManager-wait-online.service` may timeout before the DHCP timeout of each NIC card. When this happens, a cascade failure may be triggered. To avoid this there is a path (see [utils/nm-patch.json](utils/nm-patch.json)) that should be appliend to the Ignition files to increase the timeout of this service and avoid the situation.
+- WHEN USING A PHYSICAL SERVER WITH MULTIPLE NICs:
+  - The `PXE APPEND` command **must specify** the exact NIC to use during the PXE boot. For example using `ip=eth2:dhcp` and NOT the generic dhcp entry `ip=dhcp`
+  - If the `PXE APPEND` use the `ip=dhcp`, the DNS information from the *last* NIC to come up will be used as the entry for `/etc/resolv.conf`.
+    - If the last NIC to come up has a self-assigned IP and does not receive a DNS, the `/etc/resolv.conf` will be empty. When this happens the Node will attempt to use the localhost `[::1]` as the DNS and the installation will fail. To work around this, during the installation:
+      - Avoid having NICs with active link that are not receiving valid IPs
+      - Pass the `nameserver=<nameserver_ip>` with the `PXE APPEND` command
+  - If the server has *too many* NICs, the `NetworkManager-wait-online.service` may timeout before the DHCP timeout of each NIC card. When this happens, a cascaded failure may be triggered. To avoid this situation, there is a patch (see [utils/nm-patch.json](utils/nm-patch.json)) that should be appliend to the Ignition files to increase the timeout of this service and avoid the situation.
 
-- Using the PXE APPEND `ipv6.disable` flag is ignored at this time
-- When customizing Ignition files to write custom files or configurations in the node, the permissions must be specified in ***OCTAL*** mode, NOT in DECIMAL.
+- Using the `PXE APPEND` to disable IPv6 using the `ipv6.disable` does not work. This flag is ignored at this time.
+- When customizing Ignition files to write custom files or configurations in the Node, the permissions must be specified in ***OCTAL*** mode (i.e. 384), NOT in DECIMAL (i.e. 600).
+- If there is no valid reverse DNS resolution during the installation, the Masters (and all the Nodes) will register as `localhost.localdomain` into the Kubernetes etcd. When this happens it will fail to identify the existence of multiple masters and the installation process will fail.
 
 # Preparing the Bastion Node
 
@@ -68,20 +78,20 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
 ## Setting up DNSmasq for PXE Boot
 
-- Disable DNS in DNSmasq by setting `port=0`
+1. Disable DNS in DNSmasq by setting `port=0`
     ```
     vi /etc/dnsmasq.conf
     ...
     port=0
     ...
     ```
-- Configure DHCP and DHCP PXE Options following the reference [dnsmasq-pxe.conf](utils/dnsmasq-pxe.conf)
+2. Configure DHCP and DHCP PXE Options following the reference [dnsmasq-pxe.conf](utils/dnsmasq-pxe.conf)
 
 ## Setup PXE Boot Configurations
 
-- Create PXE Boot menu to be used by the environment [/var/lib/tftpboot/pxelinux.cfg/default](utils/pxelinux.cfg-default-bios)
+1. Create PXE Boot menu to be used by the environment [/var/lib/tftpboot/pxelinux.cfg/default](utils/pxelinux.cfg-default-bios)
 
-- Download RHCOS images.
+2. Download RHCOS images.
 
   - Running `./poc.sh images` download all the images to `./images` on your current directory. It should be similar to this list (versions may be different):
   
@@ -96,8 +106,10 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     └── rhcos-410.8.20190516.0-metal-uefi.raw.gz
     ```
 
-- Open the `openshift-client-linux-4.1.0-rc.7.tar.gz` and the `openshift-install-linux-4.1.0-rc.7.tar.gz` into your current directory. This will provide the `openshift-installer`, `oc` and `kubectl` binaries.
-- Copy RHCOS PXE images into the corresponding folders
+3. Open the `openshift-client-linux-4.1.0-rc.7.tar.gz` and the `openshift-install-linux-4.1.0-rc.7.tar.gz` into your current directory. This will provide the `openshift-installer`, `oc` and `kubectl` binaries.
+   
+4. Copy RHCOS PXE images into the corresponding folders
+   
     ```
     mkdir /var/lib/tftpboot/rhcos
 
@@ -105,9 +117,10 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
     cp ./images/rhcos-410.8.20190516.0-installer-kernel var/lib/tftpboot/rhcos/rhcos-kernel
     ```
-- Copy RHCOS installation images into web server: `./poc.sh prep_images`
 
-# Installation
+5. Copy RHCOS installation images into web server: `./poc.sh prep_images`
+
+# INSTALLATION
 
 - Generage the Ignition files:
 
