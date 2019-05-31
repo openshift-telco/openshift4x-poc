@@ -15,7 +15,7 @@ This is a reference deployment of OpenShift 4.1 UPI bare-metal deployment used f
 | master-2  | 192.168.1.13 |
 | worker-0  | 192.168.1.15 |
 | worker-1  | 192.168.1.16 |
-| worker-1  | 192.168.1.17 |
+| worker-2  | 192.168.1.17 |
 
 ***NOTE:*** For easy customization, clone this repo to your Bastion Node.
 
