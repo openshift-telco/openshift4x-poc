@@ -91,6 +91,7 @@ customizations() {
 }
 
 prep_images () {
+    mkdir ${WEBROOT}/metal/
     cp -f images/rhcos-${RHCOS_BUILD}-metal-bios.raw.gz ${WEBROOT}/metal/
     cp -f images/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz ${WEBROOT}/metal/
     tree ${WEBROOT}/metal/
