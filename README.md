@@ -146,7 +146,7 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
   
   - This will start the process of installing RHCOS in the Bootstrap Node 
 
-(missing image here)
+    ![Bootstrap Menu](static/pxe-boot-bootstrap.png)
 
 - Wait until the bootstrap Node is up and showing the login prompt
 
@@ -158,7 +158,7 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
 - Start the Master Nodes and select the `MASTER` option from the PXE menu
 
-(missing image here)
+    ![Bootstrap Menu](static/pxe-boot-master.png)
 
 - The boot process of the Masters will start the RHCOS installation and use the Ignition configuration during the first install.
   - After RHCOS is installed in the Node, it will be up for a few minutes showing the login prompt and eventually will reboot. This is a normal part of the automatic upgrade process of RHCOS.
@@ -179,7 +179,7 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
 - Proceed to boot the Worker Nodes and select the `WORKER` option fromt he PXE menu
  
-(missing image here)
+    ![Bootstrap Menu](static/pxe-boot-worker.png)
 
 - After RHCOS is installed in the Worker node, it will go over a similar process as with the Master Nodes but this time, there will be a Certificate Signing Request (CSR) that need to be accepted before it proceeds.
   - The script provides `./poc approve` to automattically approve any pending certificate. NOTE: In a production environment, the certificates should be approved ONLY after confirming the CSR is from a valid and authorized Worker Node.
