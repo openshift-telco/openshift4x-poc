@@ -1,6 +1,12 @@
 # OpenShift 4.1 UPI bare-metal (using PXE boot)
 
-This is a reference deployment of OpenShift 4.1 UPI bare-metal deployment used for POCs.
+This is a reference documentation for POCs of OpenShift 4.1 UPI bare-metal deployment using PXE Boot.
+
+The initial deployment is as per the following diagram 
+
+![OCP Bootstrap Deployment](static/OCP_4x_bootstrap.png)
+
+***NOTE:*** Even when the diagram show stwo different load balancers, the access for the operations and administration tasks as well as the applications traffic are documented to go over the same load balancer. For a production grade deployment, the control and operation ports (K8s API, Machine Server, etc.) should not be exposed outside the organization.
 
 ## Reference environment 
 
