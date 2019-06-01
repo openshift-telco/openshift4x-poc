@@ -218,3 +218,13 @@ service-catalog-controller-manager   4.1.0-rc.7   True        False         Fals
 storage                              4.1.0-rc.7   True        False         False      4h4m
 [root@jumphost ocp4]#
 ```
+
+
+
+- Adding ephemeral storaste to the image registry can be done with the following command:
+- 
+***NOTE:*** ONLY USE THIS FOR TESTING
+
+```
+oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"storage":{"emptyDir":{}}}}'
+```
