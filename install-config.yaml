@@ -6,10 +6,10 @@ compute:
   replicas: 0 
 controlPlane:
   hyperthreading: Enabled   
-  name: ocp4poc 
+  name: master 
   replicas: 3 
 metadata:
-  name: test 
+  name: ocp4poc 
 networking:
   clusterNetworks:
   - cidr: 10.128.0.0/14 
