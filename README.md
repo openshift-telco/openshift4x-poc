@@ -30,6 +30,7 @@ Modify the following environment variables of `./poc.sh` script to match your en
 OCP_RELEASE=4.1.0-rc.7
 RHCOS_BUILD=410.8.20190516.0
 WEBROOT=/usr/share/nginx/html/
+TFTPROOT=/var/lib/tftpboot/
 POCDIR=ocp4poc
 ```
 ***NOTE:*** Next instructions assume this has been customized. 
@@ -114,17 +115,11 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
 3. Open the `openshift-client-linux-4.1.0-rc.7.tar.gz` and the `openshift-install-linux-4.1.0-rc.7.tar.gz` into your current directory. This will provide the `openshift-installer`, `oc` and `kubectl` binaries.
    
-4. Copy RHCOS PXE images into the corresponding folders
+4. Copy RHCOS PXE images and RHCOS images into the corresponding folders
    
-    ```
-    mkdir /var/lib/tftpboot/rhcos
-
-    cp ./images/rhcos-410.8.20190516.0-installer-initramfs.img /var/lib/tftpboot/rhcos/rhcos-initramfs.img
-
-    cp ./images/rhcos-410.8.20190516.0-installer-kernel var/lib/tftpboot/rhcos/rhcos-kernel
-    ```
-
-5. Copy RHCOS installation images into web server: `./poc.sh prep_images`
+```
+./poc.sh prep_images
+```
 
 # INSTALLATION
 

@@ -8,6 +8,7 @@
 OCP_RELEASE=4.1.0-rc.7
 RHCOS_BUILD=410.8.20190516.0
 WEBROOT=/usr/share/nginx/html/
+TFTPROOT=/var/lib/tftpboot/
 POCDIR=ocp4poc
 
 ##############################################################
@@ -91,10 +92,17 @@ customizations() {
 }
 
 prep_images () {
+    echo "Copying RHCOS OS Images to ${WEBROOT}"
     mkdir ${WEBROOT}/metal/
-    cp -f images/rhcos-${RHCOS_BUILD}-metal-bios.raw.gz ${WEBROOT}/metal/
-    cp -f images/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz ${WEBROOT}/metal/
+    cp -f ./images/rhcos-${RHCOS_BUILD}-metal-bios.raw.gz ${WEBROOT}/metal/
+    cp -f ./images/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz ${WEBROOT}/metal/
     tree ${WEBROOT}/metal/
+
+    echo "Copying RHCOS PXE Boot Images to ${TFTPROOT}"
+    mkdir ${TFTPROOT}/rhcos/
+    cp ./images/rhcos-410.8.20190516.0-installer-initramfs.img ${TFTPROOT}/rhcos/rhcos-initramfs.img
+    cp ./images/rhcos-410.8.20190516.0-installer-kernel ${TFTPROOT}/rhcos/rhcos-kernel
+    tree ${TFTPROOT}/rhcos/
 }
 
 prep_ign () {
