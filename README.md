@@ -141,20 +141,20 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 ## Ports to open if Bastion node running all the ancillary services
 
 ```
-firewall-cmd --zone=public --add-port=6443/tcp
-firewall-cmd --zone=public --add-port=22623/tcp
-firewall-cmd --zone=public --add-service=http
-firewall-cmd --zone=public --add-service=https
-firewall-cmd --zone=public --add-service=dns
+firewall-cmd --zone=public   --permanent --add-port=6443/tcp 
+firewall-cmd --zone=public   --permanent --add-port=22623/tcp 
+firewall-cmd --zone=public   --permanent --add-service=http
+firewall-cmd --zone=public   --permanent --add-service=https
+firewall-cmd --zone=public   --permanent --add-service=dns
 
-firewall-cmd --zone=internal --add-port=6443/tcp
-firewall-cmd --zone=internal --add-port=22623/tcp
-firewall-cmd --zone=internal --add-service=http
-firewall-cmd --zone=internal --add-service=https
-firewall-cmd --zone=internal --add-port=69/udp
-firewall-cmd --zone=internal --add-port=8000/tcp
-firewall-cmd --zone=internal --add-service=dns
-firewall-cmd --zone=internal --add-service=dhcp
+firewall-cmd --zone=internal --permanent --add-port=6443/tcp
+firewall-cmd --zone=internal --permanent --add-port=22623/tcp
+firewall-cmd --zone=internal --permanent --add-service=http
+firewall-cmd --zone=internal --permanent --add-service=https
+firewall-cmd --zone=internal --permanent --add-port=69/udp
+firewall-cmd --zone=internal --permanent --add-port=8000/tcp
+firewall-cmd --zone=internal --permanent --add-service=dns
+firewall-cmd --zone=internal --permanent --add-service=dhcp
 
 firewall-cmd --reload
 
