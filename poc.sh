@@ -5,8 +5,8 @@
 ##############################################################
 
 # OCP_RELEASE=$(curl -s https://quay.io/api/v1/repository/openshift-release-dev/ocp-release/tag/\?limit=1\&page=1\&onlyActiveTags=true | jq -r '.tags[].name')
-OCP_RELEASE=4.1.0-rc.9
-RHCOS_BUILD=410.8.20190516.0
+OCP_RELEASE=4.1.0
+RHCOS_BUILD=4.1.0-x86_64
 WEBROOT=/usr/share/nginx/html
 TFTPROOT=/var/lib/tftpboot
 POCDIR=ocp4poc
@@ -22,14 +22,14 @@ usage() {
 
 get_images() {
     mkdir images ; cd images 
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-installer-initramfs.img
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-installer-kernel
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-installer.iso
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-metal-bios.raw.gz
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/4.1.0/rhcos-${RHCOS_BUILD}-installer-initramfs.img
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/4.1.0/rhcos-${RHCOS_BUILD}-installer-kernel
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/4.1.0/rhcos-${RHCOS_BUILD}-installer.iso
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/4.1.0/rhcos-${RHCOS_BUILD}-metal-bios.raw.gz
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/4.1.0/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz
 
     # Not applicable for bare-metal deployment
-    ##curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/latest/rhcos-${RHCOS_BUILD}-vmware.ova
+    ##curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/4.1.0/rhcos-${RHCOS_BUILD}-vmware.ova
 
     curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_RELEASE}/openshift-client-linux-${OCP_RELEASE}.tar.gz 
     curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_RELEASE}/openshift-install-linux-${OCP_RELEASE}.tar.gz
@@ -134,6 +134,7 @@ approve () {
     export KUBECONFIG=${POCDIR}/auth/kubeconfig
     ./oc get csr
     ./oc get csr -ojson | jq -r '.items[] | select(.status == {} ) | .metadata.name' | xargs ./oc adm certificate approve
+    ./oc get csr 
 }
 
 # Capture First param

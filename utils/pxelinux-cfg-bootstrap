@@ -6,4 +6,4 @@ ONTIMEOUT pxeboot
 LABEL pxeboot
   MENU DEFAULT
   KERNEL rhcos/rhcos-kernel
-  APPEND ip=eno1:dhcp rd.neednet=1 initrd=rhcos/rhcos-initramfs.img console=tty0 console=ttyS0 coreos.inst=yes coreos.inst.install_dev=sda coreos.inst.ignition_url=http://192.168.1.1:8000/bootstrap.ign coreos.inst.image_url=http://192.168.1.1:8000/metal/rhcos-410.8.20190516.0-metal-bios.raw.gz
+  APPEND ip=eno1:dhcp rd.neednet=1 initrd=rhcos/rhcos-initramfs.img console=tty0 console=ttyS0 coreos.inst=yes coreos.inst.install_dev=sda coreos.inst.ignition_url=http://192.168.1.1:8000/bootstrap.ign coreos.inst.image_url=http://192.168.1.1:8000/metal/rhcos-4.1.0-x86_64-metal-bios.raw.gz
