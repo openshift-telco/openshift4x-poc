@@ -7,8 +7,8 @@
 # OCP_RELEASE=$(curl -s https://quay.io/api/v1/repository/openshift-release-dev/ocp-release/tag/\?limit=1\&page=1\&onlyActiveTags=true | jq -r '.tags[].name')
 OCP_RELEASE=4.1.0-rc.9
 RHCOS_BUILD=410.8.20190516.0
-WEBROOT=/usr/share/nginx/html/
-TFTPROOT=/var/lib/tftpboot/
+WEBROOT=/usr/share/nginx/html
+TFTPROOT=/var/lib/tftpboot
 POCDIR=ocp4poc
 
 ##############################################################

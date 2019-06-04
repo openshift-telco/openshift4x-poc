@@ -127,6 +127,30 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 ./poc.sh prep_installer
 ```
 
+## Ports to open if Bastion node running all the ancillary services
+
+```
+firewall-cmd --zone=public --add-port=6443/tcp
+firewall-cmd --zone=public --add-port=22623/tcp
+firewall-cmd --zone=public --add-service=http
+firewall-cmd --zone=public --add-service=https
+firewall-cmd --zone=public --add-service=dns
+
+firewall-cmd --zone=internal --add-port=6443/tcp
+firewall-cmd --zone=internal --add-port=22623/tcp
+firewall-cmd --zone=internal --add-service=http
+firewall-cmd --zone=internal --add-service=https
+firewall-cmd --zone=internal --add-port=69/udp
+firewall-cmd --zone=internal --add-port=8000/tcp
+firewall-cmd --zone=internal --add-service=dns
+firewall-cmd --zone=internal --add-service=dhcp
+
+firewall-cmd --reload
+
+firewall-cmd --zone=internal  --list-services
+firewall-cmd --zone=internal  --list-ports
+```
+
 # INSTALLATION
 
 - Create or edit `install-config.yaml` to include the pull secret obtained from [https://try.openshift.com](https://try.openshift.com)
