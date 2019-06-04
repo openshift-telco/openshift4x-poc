@@ -123,7 +123,11 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
 # INSTALLATION
 
-- Generage the Ignition files:
+- Create or edit `install-config.yaml` to include the pull secret obtained from [https://try.openshift.com](https://try.openshift.com)
+
+- Add the SSH Key to be used to access the Bootstrap Node to the `install-config.yaml`
+
+- Generate the Ignition files:
 
     `./poc.sh ignition`
 
