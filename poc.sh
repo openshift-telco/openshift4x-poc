@@ -17,7 +17,7 @@ POCDIR=ocp4poc
 
 usage() {
     echo -e "Usage: $0 [ clean | ignition | custom | prep_ign | bootstrap | install | approve ] "
-    echo -e "\t\t(extras) [ tools | images | prep_images ]"
+    echo -e "\t\t(extras) [ tools | images | prep_installer | prep_images ]"
 }
 
 get_images() {
@@ -92,6 +92,12 @@ customizations() {
     cp ${POCDIR}/worker.ign-with-user ${POCDIR}/worker.ign
 }
 
+prep_installer () {
+    echo "Uncompressing installer and client binaries"
+    tar -xzf ./images/openshift-client-linux-${OCP_RELEASE}.tar.gz
+    tar -xaf ./images/openshift-install-linux-${OCP_RELEASE}.tar.gz
+}
+
 prep_images () {
     echo "Copying RHCOS OS Images to ${WEBROOT}"
     mkdir ${WEBROOT}/metal/
@@ -151,6 +157,9 @@ case $key in
         ;;
     prep_ign)
         prep_ign
+        ;;
+    prep_installer)
+        prep_installer
         ;;
     prep_images)
         prep_images

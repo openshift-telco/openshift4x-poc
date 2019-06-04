@@ -121,6 +121,12 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 ./poc.sh prep_images
 ```
 
+5. Uncompress installer and client binaries into current directory
+
+```
+./poc.sh prep_installer
+```
+
 # INSTALLATION
 
 - Create or edit `install-config.yaml` to include the pull secret obtained from [https://try.openshift.com](https://try.openshift.com)
