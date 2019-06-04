@@ -5,7 +5,7 @@
 ##############################################################
 
 # OCP_RELEASE=$(curl -s https://quay.io/api/v1/repository/openshift-release-dev/ocp-release/tag/\?limit=1\&page=1\&onlyActiveTags=true | jq -r '.tags[].name')
-OCP_RELEASE=4.1.0-rc.7
+OCP_RELEASE=4.1.0-rc.9
 RHCOS_BUILD=410.8.20190516.0
 WEBROOT=/usr/share/nginx/html/
 TFTPROOT=/var/lib/tftpboot/
@@ -35,6 +35,7 @@ get_images() {
     curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_RELEASE}/openshift-install-linux-${OCP_RELEASE}.tar.gz
 
     cd ..
+    tree images
 }
 
 install_tools() {
