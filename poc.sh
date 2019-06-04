@@ -101,8 +101,8 @@ prep_installer () {
 prep_images () {
     echo "Copying RHCOS OS Images to ${WEBROOT}"
     mkdir ${WEBROOT}/metal/
-    cp -f ./images/rhcos-${RHCOS_BUILD}-metal-bios.raw.gz ${WEBROOT}/metal/
-    cp -f ./images/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz ${WEBROOT}/metal/
+    cp -f ./images/rhcos-${RHCOS_BUILD}-x86_64-metal-bios.raw.gz ${WEBROOT}/metal/
+    cp -f ./images/rhcos-${RHCOS_BUILD}-x86_64-metal-uefi.raw.gz ${WEBROOT}/metal/
     tree ${WEBROOT}/metal/
 
     echo "Copying RHCOS PXE Boot Images to ${TFTPROOT}"
