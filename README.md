@@ -53,6 +53,17 @@ Reference Load Balancer configurations availabl in the `utils` folder:
   - Load balancer using [NGINX](utils/nginx.conf)
   - Load balancer using [HAProxy](utils/haproxy.cfg)
 
+NOTE: If seeing port bind errors with NGINX load balancer check SELinux:
+```
+# List the permited ports
+semanage port -l | grep http_port_t
+
+# If need to add ports
+semanage port -a -t http_port_t -p tcp 6443
+semanage port -a -t http_port_t -p tcp 22623
+semanage port -a -t http_port_t -p tcp 8000
+```
+
 #  > > > CAVEATS AND THINGS TO KNOW < < <
 
 - WHEN USING A PHYSICAL SERVER WITH MULTIPLE NICs:
