@@ -32,6 +32,7 @@ yum install -y docker-distribution skopeo podman
 
     version: 0.1
     log:
+        #level: debug
     fields:
         service: registry
     storage:
@@ -106,7 +107,7 @@ vi pull-secret.json
 ```
 
 
-# Using Dedicate Disk for registry
+# (optional) Using Dedicate Disk for registry
 
 1. Create partition in disk
    
