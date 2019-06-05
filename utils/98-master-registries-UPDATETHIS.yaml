@@ -1,0 +1,40 @@
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  creationTimestamp: null
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 98-master-registries
+spec:
+  config:
+    ignition:
+      config: {}
+      security:
+        tls: {}
+      timeouts: {}
+      version: 2.2.0
+    networkd: {}
+    passwd: {}
+    storage: {
+            "files": [
+                {
+                    "path": "/etc/containers/registries.conf",
+                    "filesystem": "root",
+                    "mode": 420,
+                    "contents": {
+                    "source": "YOUR_REGISTRIES_CONF_FILE_HERE"
+                    }
+                },
+                {
+                    "path": "/etc/pki/ca-trust/source/anchors/domain.crt",
+                    "filesystem": "root",
+                    "mode": 420,
+                    "contents": {
+                    "source": "YOUR_REGISTRY_CA_HERE" 
+                    }
+                }
+            ]
+        }
+    systemd: {}
+  osImageURL: ""

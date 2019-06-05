@@ -4,12 +4,23 @@
 # UPDATE TO MATCH YOUR ENVIRONMENT
 ##############################################################
 
-# OCP_RELEASE=$(curl -s https://quay.io/api/v1/repository/openshift-release-dev/ocp-release/tag/\?limit=1\&page=1\&onlyActiveTags=true | jq -r '.tags[].name')
 OCP_RELEASE=4.1.0
 RHCOS_BUILD=4.1.0
 WEBROOT=/usr/share/nginx/html
 TFTPROOT=/var/lib/tftpboot
 POCDIR=ocp4poc
+
+#############################################################
+# EXPERIMENTAL
+##############################################################
+
+#LAST_3_OCP_RELEASES=$(curl -s https://quay.io/api/v1/repository/${UPSTREAM_REPO}/ocp-release/tag/\?limit=3\&page=1\&onlyActiveTags=true | jq -r '.tags[].name')
+
+AIRGAP_REG='registry.ocp4poc.example.com:5000'
+AIRGAP_REPO='ocp4/openshift4'
+UPSTREAM_REPO='openshift-release-dev'   ## or 'openshift'
+AIRGAP_SECRET_JSON='pull-secret-2.json'
+#export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 
 ##############################################################
 # DO NOT MODIFY AFTER THIS LINE
@@ -17,7 +28,7 @@ POCDIR=ocp4poc
 
 usage() {
     echo -e "Usage: $0 [ clean | ignition | custom | prep_ign | bootstrap | install | approve ] "
-    echo -e "\t\t(extras) [ tools | images | prep_installer | prep_images ]"
+    echo -e "\t\t(extras) [ get_images | prep_installer | prep_images ]"
 }
 
 get_images() {
@@ -40,17 +51,25 @@ get_images() {
 
 install_tools() {
     echo -e "NOTE: Tools used by $0 are not installed by this script. Manually install one of the following options:"
-    echo -e "\nIf using NGINX:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma nginx"
+    echo -e "\nWith NGINX LB:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma nginx"
+
     echo -e "\t Note: May need EPEL repo: rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-    echo -e "\nIf using HTTPD:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma httpd\n"
+    echo -e "\nWith HAProxy LB:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma haproxy\n"
+
+    echo "Downloading `filestranspiler`"
+    curl -o ./utils/filetranspile https://raw.githubusercontent.com/ashcrow/filetranspiler/master/filetranspile
+    chmod +x ./utils/filetranspile
+}
+
+mirror () {
+    echo "WARNING: This is an unsupported procedure"
+    oc adm -a ${AIRGAP_SECRET_JSON} release new --from-release=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
+    --mirror=${AIRGAP_REG}/${AIRGAP_REPO} --to-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 }
 
 clean() {
-    echo "Removing installation folder and leases"
+    echo "Removing installation folder"
     rm -fr ${POCDIR}
-#    systemctl stop dnsmasq
-#    rm -f /var/lib/dnsmasq/dnsmasq.leases
-#    systemctl start dnsmasq
 }
 
 ignition() {
@@ -61,35 +80,38 @@ ignition() {
     ./openshift-install create ignition-configs --dir=${POCDIR}
 }
 
-customizations() {
-    echo "Update Ignition files to apply NM patch and create local user"
+customizations () {
+    echo "Create backup or restore previous Ignition files"
+
     if [[ -f ${POCDIR}/bootstrap.ign-bkup ]]; then
+        # Restore backup
         cp -f ${POCDIR}/bootstrap.ign-bkup ${POCDIR}/bootstrap.ign
         cp -f ${POCDIR}/master.ign-bkup ${POCDIR}/master.ign
         cp -f ${POCDIR}/worker.ign-bkup ${POCDIR}/worker.ign
     else
+        # Create backup
         cp ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-bkup
         cp ${POCDIR}/master.ign ${POCDIR}/master.ign-bkup
         cp ${POCDIR}/worker.ign ${POCDIR}/worker.ign-bkup
     fi
 
-    mv ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-original
-    mv ${POCDIR}/master.ign ${POCDIR}/master.ign-original
-    mv ${POCDIR}/worker.ign ${POCDIR}/worker.ign-original
+    echo "Generate manifests to apply customizations"
+    ./openshift-install create manifests --dir=${POCDIR}
+  
+    cp ./utils/10-worker-nm-workaround.yaml ./${POCDIR}/openshift/
+    cp ./utils/10-master-nm-workaround.yaml ./${POCDIR}/openshift/
 
-    # Update Bootstrap with custom network settings
-    ./utils/patch-nm-bootstrap.py
-    cp ${POCDIR}/bootstrap.ign-with-patch ${POCDIR}/bootstrap.ign
+    if [[ -z "${OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE}"]]; then 
+        cp ./utils/98-worker-registries.yaml ./${POCDIR}/openshift/
+        cp ./utils/98-master-registries.yaml ./${POCDIR}/openshift/
+    fi
 
-    # Update Master nodes config with local user and custom network configs
-    jq -s '.[0] * .[1]' ${POCDIR}/master.ign-original   utils/nm-patch.json > ${POCDIR}/master.ign-with-patch
-    jq -s '.[0] * .[1]' ${POCDIR}/master.ign-with-patch utils/add-local-user.json > ${POCDIR}/master.ign-with-user
-    cp ${POCDIR}/master.ign-with-user ${POCDIR}/master.ign
-    
-    # Update Worker nodes config with local user and custom network configs
-    jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-original   utils/nm-patch.json > ${POCDIR}/worker.ign-with-patch
-    jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-with-patch utils/add-local-user.json > ${POCDIR}/worker.ign-with-user
-    cp ${POCDIR}/worker.ign-with-user ${POCDIR}/worker.ign
+    echo "Generating new Ignition Configs"
+    ./openshift-install create ignition-configs --dir=${POCDIR}
+
+     echo "Update Bootstrap Ignition to apply NM patch"
+    ./utils/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign-patch 
+    ./utils/filetranspile -i ./${POCDIR}/bootstrap.ign-patch -f ./utils/patch-node > ./${POCDIR}/bootstrap.ign
 }
 
 prep_installer () {
@@ -134,6 +156,7 @@ approve () {
     export KUBECONFIG=${POCDIR}/auth/kubeconfig
     ./oc get csr
     ./oc get csr -ojson | jq -r '.items[] | select(.status == {} ) | .metadata.name' | xargs ./oc adm certificate approve
+    sleep 3
     ./oc get csr 
 }
 
@@ -144,8 +167,11 @@ case $key in
     tools)
         install_tools
         ;;
-    images)
+    get_images)
         get_images
+        ;;
+    mirror)
+        mirror
         ;;
     clean)
         clean

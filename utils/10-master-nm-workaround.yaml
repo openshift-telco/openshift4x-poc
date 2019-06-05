@@ -1,0 +1,31 @@
+---
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  creationTimestamp: null
+  labels:
+    machineconfiguration.openshift.io/role: master
+  name: 10-master-nm-workaround
+spec:
+  config:
+    ignition:
+      config: {}
+      security:
+        tls: {}
+      timeouts: {}
+      version: 2.2.0
+    networkd: {}
+    passwd: {}
+    storage: {}
+    systemd: {
+        "units": [
+            {
+            "name": "NetworkManager-wait-online.service",
+            "dropins": [{
+              "name": "timeout.conf",
+              "contents": "[Service]\nExecStart=\nExecStart=/usr/bin/nm-online -s -q --timeout=300"
+            }]
+          }
+        ]
+      }
+  osImageURL: ""
