@@ -41,9 +41,9 @@ yum install -y docker-distribution skopeo podman
             rootdirectory: /opt/registry
     auth:
         htpasswd:
-        realm: basic-realm
-        # bcrpt formated passwords
-        path: /etc/docker-distribution/registry/htpasswd
+          realm: basic-realm
+          # bcrpt formated passwords
+          path: /etc/docker-distribution/registry/htpasswd
     http:
         addr: :5000
         host: https://bastion.example.com:5000
