@@ -23,7 +23,7 @@ spec:
                     "filesystem": "root",
                     "mode": 420,
                     "contents": {
-                    "source": "data:;base64,BASE64_REGISTRIES_CONF_FILE_HERE"
+                    "source": "data:;base64,<BASE64_REGISTRIES_CONF_FILE_HERE>"
                     }
                 },
                 {
@@ -31,7 +31,7 @@ spec:
                     "filesystem": "root",
                     "mode": 420,
                     "contents": {
-                    "source": "data:;base64,BASE64_REGISTRY_CA_HERE" 
+                    "source": "data:;base64,<BASE64_REGISTRY_CA_HERE>" 
                     }
                 }
             ]
