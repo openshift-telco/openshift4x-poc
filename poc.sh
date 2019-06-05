@@ -101,7 +101,7 @@ customizations () {
     cp ./utils/10-worker-nm-workaround.yaml ./${POCDIR}/openshift/
     cp ./utils/10-master-nm-workaround.yaml ./${POCDIR}/openshift/
 
-    if [[ -z "${OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE}"]]; then 
+    if [[ -z "${OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE}" ]]; then
         cp ./utils/98-worker-registries.yaml ./${POCDIR}/openshift/
         cp ./utils/98-master-registries.yaml ./${POCDIR}/openshift/
     fi
