@@ -8,7 +8,46 @@ The initial deployment is as per the following diagram
 
 ***NOTE:*** Even when the diagram shows two different load balancers, the access for the operations and administration tasks as well as the applications traffic are documented to go over the same load balancer. For a production grade deployment, the control and operation ports (K8s API, Machine Server, etc.) should not be exposed outside the organization.
 
-## Reference environment 
+# TL;DR
+
+1. Clone this repo to the Bastion Node
+2. Edit the `install-config.yaml` to match your environment
+3. Execute `poc.sh` script:
+```
+./poc.sh clean
+
+./poc.sh ignition
+
+./poc.sh custom
+
+./poc.sh prep_ign
+```
+4. Power up the Bootstrap Node and PXE install the RHCOS
+5. Power up the Master Nodes and PXE install the RHCOS
+```
+# Monitor bootstrap progress:
+./poc.sh bootstrap
+```
+6. Once bootstrap complete, shutdown Bootstrap Node
+7. Power up the Worker Nodes and PXE install 
+```
+# Monitor OCP install
+./poc.sh install
+```
+8. Monitor CSR requests from the Worker Nodes and accept the certificates
+
+NOTE: There are two CSR's per Node that need to be accepted.
+```
+$ export KUBECONFIG=./ocp4poc/auth/kubeconfig
+
+$ ./oc get csr
+
+$ ./oc adm certificate approve <crt-name>
+
+```
+
+
+# Reference Environment 
 
 - Base Domain: example.com
 - Cluster Name: ocp4poc
