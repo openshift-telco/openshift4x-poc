@@ -211,9 +211,7 @@ firewall-cmd --zone=internal  --list-ports
 
     `./poc.sh ignition`
 
-- Customize [utils/add-local-user.json](utils/add-local-user.json) and set the SSH  key to use to access Nodes.
-
-- Apply customizations and patch:
+- Apply custom patch for NetworkManager:
 
     `./poc.sh custom`
 
@@ -301,8 +299,7 @@ storage                              4.1.0-rc.7   True        False         Fals
 
 
 - Adding ephemeral storaste to the image registry can be done with the following command:
-- 
-***NOTE:*** ONLY USE THIS FOR TESTING
+    - ***NOTE:*** ONLY USE THIS TYPE OF STORAGE FOR TESTING
 
 ```
 oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"storage":{"emptyDir":{}}}}'
