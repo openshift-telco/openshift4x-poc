@@ -90,41 +90,41 @@ customizations () {
     echo "Generate manifests to apply customizations"
     ./openshift-install create manifests --dir=${POCDIR}
   
-    # this also need to be applied to the initial master and ignition files
+    # this workaround also need to be applied to the initial
+    # master and worker ignition files after they are generated
     cp ./utils/10-worker-nm-workaround.yaml ./${POCDIR}/openshift/
     cp ./utils/10-master-nm-workaround.yaml ./${POCDIR}/openshift/
 
-    if [[ -d ./${POCDIR}/openshift ]]; then
-        cp ./utils/98-worker-registries.yaml ./${POCDIR}/openshift/
+    if [[ -f ./utils/98-master-registries.yaml ]]; then
+        echo "Applying custom registry configuration"
         cp ./utils/98-master-registries.yaml ./${POCDIR}/openshift/
+        cp ./utils/98-worker-registries.yaml ./${POCDIR}/openshift/
     fi
 
     echo "Generating new Ignition Configs"
     ./openshift-install create ignition-configs --dir=${POCDIR}
 
-    echo "Create backup of Ignition files"
-    if [[ ! -f ${POCDIR}/bootstrap.ign-bkup ]]; then
-        # Create backup
-        mv ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-bkup
-        mv ${POCDIR}/master.ign ${POCDIR}/master.ign-bkup
-        mv ${POCDIR}/worker.ign ${POCDIR}/worker.ign-bkup
-    fi
+    echo "Create backup of Ignition files to apply additional customizations"
+    mv ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-bkup
+    mv ${POCDIR}/master.ign    ${POCDIR}/master.ign-bkup
+    mv ${POCDIR}/worker.ign    ${POCDIR}/worker.ign-bkup
 
-    echo "Updating Master and Workers Ignition files to apply NM patch"
+    echo "Updating Master and Workers Ignition files with NetworkManager patch"
     jq -s '.[0] * .[1]' ${POCDIR}/master.ign-bkup ./utils/nm-patch.json > ${POCDIR}/master.ign
     jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-bkup ./utils/nm-patch.json > ${POCDIR}/worker.ign
 
-    echo "Updating Bootstrap Ignition file to apply NM patch"
+    echo "Updating Bootstrap Ignition file to apply NetworkManager patch"
     ./utils/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign-patch
 
     # Check if there are additional customizations for bootstrap.ign
     if [[ -d ./utils/patch-node ]]; then
-        echo "Found patch-node directory. Encoding additional files into bootstrap.ign"
+        echo "Found patch-node directory. Encoding additional configuration files into bootstrap.ign"
         ./utils/filetranspile -i ./${POCDIR}/bootstrap.ign-patch -f ./utils/patch-node > ./${POCDIR}/bootstrap.ign
     else
         echo "No additional files to be injected into bootstrap.ign"
         cp ./${POCDIR}/bootstrap.ign-patch ./${POCDIR}/bootstrap.ign
     fi
+    echo "Customizations done."
 }
 
 prep_installer () {
