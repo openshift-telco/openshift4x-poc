@@ -8,7 +8,7 @@
 
 # THIS IS AN UNSUPPORTED PROCEDURE IN OCP 4.1.0
 
-1. Clone this repo to the Bastion Node
+- Clone ***this*** repo to the Bastion Node
 
 
 - Edit `install-config.yaml` with the pull secrets of your local registry:
