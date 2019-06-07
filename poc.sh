@@ -81,19 +81,6 @@ ignition() {
 }
 
 customizations () {
-    echo "Create backup or restore previous Ignition files"
-
-    if [[ -f ${POCDIR}/bootstrap.ign-bkup ]]; then
-        # Restore backup
-        cp -f ${POCDIR}/bootstrap.ign-bkup ${POCDIR}/bootstrap.ign
-        cp -f ${POCDIR}/master.ign-bkup ${POCDIR}/master.ign
-        cp -f ${POCDIR}/worker.ign-bkup ${POCDIR}/worker.ign
-    else
-        # Create backup
-        cp ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-bkup
-        cp ${POCDIR}/master.ign ${POCDIR}/master.ign-bkup
-        cp ${POCDIR}/worker.ign ${POCDIR}/worker.ign-bkup
-    fi
 
     echo "Generate manifests to apply customizations"
     ./openshift-install create manifests --dir=${POCDIR}
@@ -109,9 +96,28 @@ customizations () {
     echo "Generating new Ignition Configs"
     ./openshift-install create ignition-configs --dir=${POCDIR}
 
-     echo "Update Bootstrap Ignition to apply NM patch"
-    ./utils/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign-patch 
-    ./utils/filetranspile -i ./${POCDIR}/bootstrap.ign-patch -f ./utils/patch-node > ./${POCDIR}/bootstrap.ign
+    echo "Create backup of Ignition files"
+    if [[ ! -f ${POCDIR}/bootstrap.ign-bkup ]]; then
+        # Create backup
+        mv ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-bkup
+        mv ${POCDIR}/master.ign ${POCDIR}/master.ign-bkup
+        mv ${POCDIR}/worker.ign ${POCDIR}/worker.ign-bkup
+    fi
+
+     echo "Update Ignition files to apply NM patch"
+    ./utils/patch-systemd-units.py -i ./${POCDIR}/master.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/master.ign
+    ./utils/patch-systemd-units.py -i ./${POCDIR}/worker.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/worker.ign
+
+    ./utils/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign-patch
+
+    # Check if there are additional customizations for bootstrap.ign
+    if [[ -d "./utils/patch-node" ]]; then
+        echo "Found patch-node directory. Encodign additional files into bootstrap.ign"
+        ./utils/filetranspile -i ./${POCDIR}/bootstrap.ign-patch -f ./utils/patch-node > ./${POCDIR}/bootstrap.ign
+    else
+        echo "No additional files injected into bootstrap.ign"
+        cp ./${POCDIR}/bootstrap.ign-patch ./${POCDIR}/bootstrap.ign
+    fi
 }
 
 prep_installer () {

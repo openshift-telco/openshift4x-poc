@@ -31,10 +31,6 @@ yum install -y docker-distribution skopeo podman
     --  etc/docker-distribution/registry/config.yml
 
     version: 0.1
-    log:
-        #level: debug
-    fields:
-        service: registry
     storage:
         cache:
             blobdescriptor: inmemory
@@ -56,6 +52,7 @@ yum install -y docker-distribution skopeo podman
     log:
     accesslog:
         disabled: false
+    # level: info, debug, etc
     level: info
     formatter: text
     fields:
@@ -84,14 +81,18 @@ firewall-cmd --add-port=5000/tcp --zone=public --permanent
 firewall-cmd --reload
 ```
 
-**Note:** You can test the registry configuration running `/usr/bin/registry serve /etc/docker-distribution/registry/config.yml`
+**TROUBLESHOOTING:** If needed, to test or debug the registry configuration run
+```
+/usr/bin/registry serve /etc/docker-distribution/registry/config.yml
+```
 
 
-4. Add credential information of local registry into the `pull-secret.json` file
+1. Add credential information of local registry into the `pull-secret.json` file
  
 ```
 # Example user and password
-echo -n 'dummy:dummy' | base64
+# NOTE: use the '-n' to generate a valid encrypted password
+echo -n "dummy:dummy" | base64
 ZHVtbXk6ZHVtbXk=
 
 # Edit pull-secret.json
