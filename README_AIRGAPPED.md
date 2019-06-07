@@ -14,27 +14,8 @@
 - Edit `install-config.yaml` with the pull secrets of your local registry:
 
     ```
-    apiVersion: v1
-    baseDomain: example.com 
-    compute:
-    - hyperthreading: Enabled   
-    name: worker
-    replicas: 0 
-    controlPlane:
-    hyperthreading: Enabled   
-    name: master 
-    replicas: 3 
-    metadata:
-    name: ocp4poc 
-    networking:
-    clusterNetworks:
-    - cidr: 10.128.0.0/14 
-        hostPrefix: 23 
-    networkType: OpenShiftSDN
-    serviceNetwork: 
-    - 172.30.0.0/16
-    platform:
-    none: {}
+    <snip>
+
     pullSecret: '{"auths": {"registry.ocp4poc.example.com:5000": {
         "auth": "ZHVtbXk6ZHVtbXk=",
         "email": "noemail@example.com"
