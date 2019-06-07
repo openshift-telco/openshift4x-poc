@@ -81,6 +81,11 @@ ignition() {
 }
 
 customizations () {
+    if [[ ! -f ./utils/filetranspile ]]; then   
+        echo "Missing customization tool. Downloading `filestranspiler`"
+        curl -o ./utils/filetranspile https://raw.githubusercontent.com/ashcrow/filetranspiler/master/filetranspile
+        chmod +x ./utils/filetranspile
+    fi
 
     echo "Generate manifests to apply customizations"
     ./openshift-install create manifests --dir=${POCDIR}
@@ -104,18 +109,18 @@ customizations () {
         mv ${POCDIR}/worker.ign ${POCDIR}/worker.ign-bkup
     fi
 
-     echo "Update Ignition files to apply NM patch"
-    ./utils/patch-systemd-units.py -i ./${POCDIR}/master.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/master.ign
-    ./utils/patch-systemd-units.py -i ./${POCDIR}/worker.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/worker.ign
+    echo "Update Ignition files to apply NM patch"
+    jq -s '.[0] * .[1]' ${POCDIR}/master.ign-bkup ./utils/nm-patch.json > ${POCDIR}/master.ign
+    jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-bkup ./utils/nm-patch.json > ${POCDIR}/worker.ign
 
     ./utils/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign-patch
 
     # Check if there are additional customizations for bootstrap.ign
     if [[ -d "./utils/patch-node" ]]; then
-        echo "Found patch-node directory. Encodign additional files into bootstrap.ign"
+        echo "Found patch-node directory. Encoding additional files into bootstrap.ign"
         ./utils/filetranspile -i ./${POCDIR}/bootstrap.ign-patch -f ./utils/patch-node > ./${POCDIR}/bootstrap.ign
     else
-        echo "No additional files injected into bootstrap.ign"
+        echo "No additional files to be injected into bootstrap.ign"
         cp ./${POCDIR}/bootstrap.ign-patch ./${POCDIR}/bootstrap.ign
     fi
 }
