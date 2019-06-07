@@ -27,7 +27,7 @@ spec:
                     }
                 },
                 {
-                    "path": "/etc/pki/ca-trust/source/anchors/domain.crt",
+                    "path": "/etc/pki/ca-trust/source/anchors/registry.ocp4poc.example.com.crt",
                     "filesystem": "root",
                     "mode": 420,
                     "contents": {

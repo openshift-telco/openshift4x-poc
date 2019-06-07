@@ -52,7 +52,7 @@ yum install -y docker-distribution skopeo podman
     log:
     accesslog:
         disabled: false
-    # level: info, debug, etc
+    # For debugging logs "level: debug"
     level: info
     formatter: text
     fields:
