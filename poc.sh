@@ -90,10 +90,11 @@ customizations () {
     echo "Generate manifests to apply customizations"
     ./openshift-install create manifests --dir=${POCDIR}
   
+    # this also need to be applied to the initial master and ignition files
     cp ./utils/10-worker-nm-workaround.yaml ./${POCDIR}/openshift/
     cp ./utils/10-master-nm-workaround.yaml ./${POCDIR}/openshift/
 
-    if [[ -z "${OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE}" ]]; then
+    if [[ -d ./${POCDIR}/openshift ]]; then
         cp ./utils/98-worker-registries.yaml ./${POCDIR}/openshift/
         cp ./utils/98-master-registries.yaml ./${POCDIR}/openshift/
     fi
@@ -109,14 +110,15 @@ customizations () {
         mv ${POCDIR}/worker.ign ${POCDIR}/worker.ign-bkup
     fi
 
-    echo "Update Ignition files to apply NM patch"
+    echo "Updating Master and Workers Ignition files to apply NM patch"
     jq -s '.[0] * .[1]' ${POCDIR}/master.ign-bkup ./utils/nm-patch.json > ${POCDIR}/master.ign
     jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-bkup ./utils/nm-patch.json > ${POCDIR}/worker.ign
 
+    echo "Updating Bootstrap Ignition file to apply NM patch"
     ./utils/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign-patch
 
     # Check if there are additional customizations for bootstrap.ign
-    if [[ -d "./utils/patch-node" ]]; then
+    if [[ -d ./utils/patch-node ]]; then
         echo "Found patch-node directory. Encoding additional files into bootstrap.ign"
         ./utils/filetranspile -i ./${POCDIR}/bootstrap.ign-patch -f ./utils/patch-node > ./${POCDIR}/bootstrap.ign
     else
