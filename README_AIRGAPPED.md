@@ -28,14 +28,14 @@
     ```
 - Edit the storage section of both `98-...` files
 
-  - Replace `<BASE64_REGISTRIES_CONF_FILE_HERE>` by the base64 output of .`/utils/registries.conf`
+  - Replace `<BASE64_REGISTRIES_CONF_FILE_HERE>` by the base64 (as a single string) output of .`/utils/registries.conf` 
     ```
-    cat ./utils/registries.conf | base64
+    cat ./utils/registries.conf | base64 -w 0
     ```
 
-  - Replace `<BASE64_REGISTRY_CA_HERE>` with the base64 output of your self-signed cert of the registry
+  - Replace `<BASE64_REGISTRY_CA_HERE>` with the base64 (as a single string) output of your self-signed cert of the registry
     ```
-    cat /etc/pki/ca-trust/source/anchors/registry.ocp4poc.example.com | base64
+    cat /etc/pki/ca-trust/source/anchors/registry.ocp4poc.example.com | base64 -w 0
     ```
   - Update `path` section for the certificate name to match the FQDN of the local registry
     ```

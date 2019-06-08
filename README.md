@@ -88,7 +88,7 @@ Reference official [documentation](https://docs.openshift.com/container-platform
 ### Load Balancer Configuration
 - Setup load balancerconfiguration in ***pass-through*** for Kubernetes API (`tcp/6443`), Machine Server Config (`tcp/22623`), OpenShift Routers HTTP and HTTPS (`tcp/80`, `tcp/443`)
 
-Reference Load Balancer configurations availabl in the `utils` folder:
+Reference Load Balancer configurations available in the `utils` folder (use one of the two):
   - Load balancer using [NGINX](utils/nginx.conf)
   - Load balancer using [HAProxy](utils/haproxy.cfg)
 
@@ -266,36 +266,36 @@ firewall-cmd --zone=internal  --list-ports
 - A successful installation will show all the cluster operators available. The `image-registry` will not become active until a cluster administrator configure storage for the registry.
 
 ```
-# oc get co
-NAME                                 VERSION      AVAILABLE   PROGRESSING   DEGRADED   SINCE
-authentication                       4.1.0-rc.7   True        False         False      8m5s
-cloud-credential                     4.1.0-rc.7   True        False         False      4h9m
-cluster-autoscaler                   4.1.0-rc.7   True        False         False      4h9m
-console                              4.1.0-rc.7   True        False         False      11m
-dns                                  4.1.0-rc.7   True        False         False      4h9m
-image-registry                                    False       False         True       4h4m
-ingress                              4.1.0-rc.7   True        False         False      3h35m
-kube-apiserver                       4.1.0-rc.7   True        False         False      4h6m
-kube-controller-manager              4.1.0-rc.7   True        False         False      4h6m
-kube-scheduler                       4.1.0-rc.7   True        False         False      4h6m
-machine-api                          4.1.0-rc.7   True        False         False      4h9m
-machine-config                       4.1.0-rc.7   True        False         False      4h8m
-marketplace                          4.1.0-rc.7   True        False         False      88m
-monitoring                           4.1.0-rc.7   True        False         False      88m
-network                              4.1.0-rc.7   True        False         False      4h9m
-node-tuning                          4.1.0-rc.7   True        False         False      4h4m
-openshift-apiserver                  4.1.0-rc.7   True        False         False      4h5m
-openshift-controller-manager         4.1.0-rc.7   True        False         False      4h8m
-openshift-samples                    4.1.0-rc.7   True        False         False      3h52m
-operator-lifecycle-manager           4.1.0-rc.7   True        False         False      4h8m
-operator-lifecycle-manager-catalog   4.1.0-rc.7   True        False         False      4h8m
-service-ca                           4.1.0-rc.7   True        False         False      4h9m
-service-catalog-apiserver            4.1.0-rc.7   True        False         False      4h4m
-service-catalog-controller-manager   4.1.0-rc.7   True        False         False      4h4m
-storage                              4.1.0-rc.7   True        False         False      4h4m
-[root@jumphost ocp4]#
-```
+# export KUBECONFIG=./ocp4poc/auth/kubeconfig
 
+# oc get co
+NAME                                 VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE
+authentication                       4.1.0     True        False         False      9m39s
+cloud-credential                     4.1.0     True        False         False      40m
+cluster-autoscaler                   4.1.0     True        False         False      40m
+console                              4.1.0     True        False         False      12m
+dns                                  4.1.0     True        False         False      40m
+image-registry                       4.1.0     True        False         False      14m
+ingress                              4.1.0     True        False         False      14m
+kube-apiserver                       4.1.0     True        False         False      39m
+kube-controller-manager              4.1.0     True        False         False      38m
+kube-scheduler                       4.1.0     True        False         False      38m
+machine-api                          4.1.0     True        False         False      40m
+machine-config                       4.1.0     True        False         False      39m
+marketplace                          4.1.0     True        False         False      36m
+monitoring                           4.1.0     True        False         False      13m
+network                              4.1.0     True        False         False      39m
+node-tuning                          4.1.0     True        False         False      36m
+openshift-apiserver                  4.1.0     True        False         False      37m
+openshift-controller-manager         4.1.0     True        False         False      39m
+openshift-samples                    4.1.0     True        False         False      30m
+operator-lifecycle-manager           4.1.0     True        False         False      40m
+operator-lifecycle-manager-catalog   4.1.0     True        False         False      40m
+service-ca                           4.1.0     True        False         False      40m
+service-catalog-apiserver            4.1.0     True        False         False      36m
+service-catalog-controller-manager   4.1.0     True        False         False      36m
+storage                              4.1.0     True        False         False      36m
+```
 
 
 - Adding ephemeral storaste to the image registry can be done with the following command:
