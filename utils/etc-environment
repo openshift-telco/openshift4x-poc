@@ -1,0 +1,26 @@
+##############################################################################
+# SAMPLE: /etc/environment
+##############################################################################
+# Setup Proxy configuration
+HTTP_PROXY=http://192.168.1.1:8080
+http_proxy=http://192.168.1.1:8080
+
+HTTPS_PROXY=http://192.168.1.1:8080
+https_proxy=http://192.168.1.1:8080
+
+# For authenticated Proxy use
+#HTTP_PROXY=http://proxyuser:password@192.168.1.1:8080
+#http_proxy=http://proxyuser:password@192.168.1.1:8080
+#HTTPS_PROXY=http://proxyuser:password@192.168.1.1:8080
+#https_proxy=http://proxyuser:password@192.168.1.1:8080
+
+##############################################################################
+# NO_PROXY -- Include destination that should not use PROXY settings
+# (examples) IP addresses for All OCP Nodes, IP Address of Container Registry, local domains
+##############################################################################
+NO_PROXY=localhost,.ocp4poc.example.com,192.168.1.0/24,10.128.0.0/14,172.30.0.0/16,.cluster.local
+no_proxy=localhost,.ocp4poc.example.com,192.168.1.0/24,10.128.0.0/14,172.30.0.0/16,.cluster.local
+
+##############################################################################
+# END OF FILE
+##############################################################################

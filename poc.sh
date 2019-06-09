@@ -101,6 +101,12 @@ customizations () {
         cp ./utils/98-worker-registries.yaml ./${POCDIR}/openshift/
     fi
 
+    if [[ -f ./utils/97-master-proxy.yaml ]]; then
+        echo "Applying Proxy configuration"
+        cp ./utils/97-master-proxy.yaml ./${POCDIR}/openshift/
+        cp ./utils/97-worker-proxy.yaml ./${POCDIR}/openshift/
+    fi
+
     echo "Generating new Ignition Configs"
     ./openshift-install create ignition-configs --dir=${POCDIR}
 

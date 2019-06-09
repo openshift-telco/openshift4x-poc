@@ -66,8 +66,8 @@ $ ./oc adm certificate approve <crt-name>
 
 Modify the following environment variables of `./poc.sh` script to match your environment.
 ```
-OCP_RELEASE=4.1.0-rc.7
-RHCOS_BUILD=410.8.20190516.0
+OCP_RELEASE=4.1.0
+RHCOS_BUILD=4.1.0
 WEBROOT=/usr/share/nginx/html/
 TFTPROOT=/var/lib/tftpboot/
 POCDIR=ocp4poc
@@ -92,7 +92,7 @@ Reference Load Balancer configurations available in the `utils` folder (use one 
   - Load balancer using [NGINX](utils/nginx.conf)
   - Load balancer using [HAProxy](utils/haproxy.cfg)
 
-NOTE: If seeing port bind errors with NGINX load balancer check SELinux:
+NOTE: If seeing port bind errors starting the NGINX load balancer check SELinux settings:
 ```
 # List the permited ports
 semanage port -l | grep http_port_t
@@ -100,7 +100,7 @@ semanage port -l | grep http_port_t
 # If need to add ports
 semanage port -a -t http_port_t -p tcp 6443
 semanage port -a -t http_port_t -p tcp 22623
-semanage port -a -t http_port_t -p tcp 8000
+semanage port -m -t http_port_t -p tcp 8000
 ```
 
 #  > > > CAVEATS AND THINGS TO KNOW < < <
@@ -154,16 +154,16 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
   
     ```
     images/
-    ├── openshift-client-linux-4.1.0-rc.7.tar.gz
-    ├── openshift-install-linux-4.1.0-rc.7.tar.gz
-    ├── rhcos-410.8.20190516.0-installer-initramfs.img
-    ├── rhcos-410.8.20190516.0-installer.iso
-    ├── rhcos-410.8.20190516.0-installer-kernel
-    ├── rhcos-410.8.20190516.0-metal-bios.raw.gz
-    └── rhcos-410.8.20190516.0-metal-uefi.raw.gz
+    ├── openshift-client-linux-4.1.0.tar.gz
+    ├── openshift-install-linux-4.1.0.tar.gz
+    ├── rhcos-4.1.0-x86_64-installer-initramfs.img
+    ├── rhcos-4.1.0-x86_64-installer.iso
+    ├── rhcos-4.1.0-x86_64-installer-kernel
+    ├── rhcos-4.1.0-x86_64-metal-bios.raw.gz
+    └── rhcos-4.1.0-x86_64-metal-uefi.raw.gz
     ```
 
-3. Open the `openshift-client-linux-4.1.0-rc.7.tar.gz` and the `openshift-install-linux-4.1.0-rc.7.tar.gz` into your current directory. This will provide the `openshift-installer`, `oc` and `kubectl` binaries.
+3. Open the `openshift-client-linux-4.1.0.tar.gz` and the `openshift-install-linux-4.1.0.tar.gz` into your current directory. This will provide the `openshift-installer`, `oc` and `kubectl` binaries.
    
 4. Copy RHCOS PXE images and RHCOS images into the corresponding folders
    
