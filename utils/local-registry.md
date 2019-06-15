@@ -17,28 +17,25 @@ apr-util-1.5.2-6.el7.x86_64.rpm
 
 2. Setup registry configuration
 
+ ```
 
   -  Generate the required certificate file for the docker-distribution service.
   Note: Ensure you use the registry FQDN as the CN when generating the certificates.
-
-    ```
    
       mkdir /etc/docker-distribution/certs
    cd /etc/docker-distribution/certs
    openssl req -newkey rsa:4096 -nodes -sha256 -keyout domain.key -x509 -days 365 -out domain.crt
    
    
-    ```
 
   - Generate htpasswd based authentication
-    ```
+  
      htpasswd -cB /etc/docker-distribution/registry_passwd dummy dummy
      
-    ```
 
   -  Take a backup of the existing configuration file and replace it with the following contents and Add the below contents to the file /etc/docker-distribution/registry/config.yml
 
-    ```
+   
      mv /etc/docker-distribution/registry/config.yml /root/original-docker-distribution-config.xml
      
      
@@ -78,7 +75,7 @@ Indentation should be properly maintained
 The password format of /etc/docker-distribution/registry_passwd must be bcrypt
 
 
-    ```
+```
 
 3.   Start the docker-distribution service and add port 5000 to the internal and public zone
 
