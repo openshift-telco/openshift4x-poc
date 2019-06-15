@@ -221,7 +221,7 @@ Storing signatures
 
 # (optional) Using Dedicate Disk for registry.If you see following error message while uploading images into your local registry then either you create dedciated disk with fstype=1 or re-install your server with disk setup as fstype=1
 
-Error messahe "Could not get runtime: kernel does not support overlay fs: overlay: the backing xfs filesystem is formatted without d_type support, which leads to incorrect behavior. Reformat the filesystem with ftype=1 to enable d_type support. Running without d_type is not supported.: driver not supported"
+Error message "Could not get runtime: kernel does not support overlay fs: overlay: the backing xfs filesystem is formatted without d_type support, which leads to incorrect behavior. Reformat the filesystem with ftype=1 to enable d_type support. Running without d_type is not supported.: driver not supported"
 
 1. Create partition in disk
    
