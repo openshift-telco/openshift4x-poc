@@ -6,80 +6,153 @@ NOTE: RHEL `rhel-7-server-extras-rpms` repo is required for these RPMs.
 
 ```
 yum install -y docker-distribution skopeo podman
+
+Please note if you are using RHEL7 subscriptions following packages needs to be manually pre-installed in order to have podman and httpd-tools
+
+libnet-1.1.6-7.el7.x86_64.rpm
+python-IPy-0.75-6.el7.noarch.rpm
+apr-util-1.5.2-6.el7.x86_64.rpm
+
 ```
 
 2. Setup registry configuration
 
 
-  - Generate Self-signed certs or obtain cets from your organizations CA
+  -  Generate the required certificate file for the docker-distribution service.
+  Note: Ensure you use the registry FQDN as the CN when generating the certificates.
 
     ```
-    mkdir -p certs
-
-    openssl req \
-    -newkey rsa:4096 -nodes -sha256 -keyout certs/domain.key \
-    -x509 -days 365 -out certs/domain.crt
-
-    cp certs/domain.crt /etc/pki/ca-trust/source/anchors/bastion.example.com.crt
-    update-ca-trust
-
-    cp -r certs /etc/docker-distribution/registry/
+   
+      mkdir /etc/docker-distribution/certs
+   cd /etc/docker-distribution/certs
+   openssl req -newkey rsa:4096 -nodes -sha256 -keyout domain.key -x509 -days 365 -out domain.crt
+   
+   
     ```
 
-  - Edit registry configuration
+  - Generate htpasswd based authentication
     ```
-    --  etc/docker-distribution/registry/config.yml
-
-    version: 0.1
-    storage:
-        cache:
-            blobdescriptor: inmemory
-        filesystem:
-            rootdirectory: /opt/registry
-    auth:
-        htpasswd:
-          realm: basic-realm
-          # bcrpt formated passwords
-          path: /etc/docker-distribution/registry/htpasswd
-    http:
-        addr: :5000
-        host: https://bastion.example.com:5000
-        secret: myverysecretregistry
-        tls:
-        certificate: /etc/docker-distribution/registry/certs/domain.crt
-        key:         /etc/docker-distribution/registry/certs/domain.key
-
-    log:
-    accesslog:
-        disabled: false
-    # For debugging logs "level: debug"
-    level: info
-    formatter: text
-    fields:
-        service: registry
-        environment: staging
+     htpasswd -cB /etc/docker-distribution/registry_passwd dummy dummy
+     
     ```
 
-  - Generate `htpasswd` file (Note: must use `bcrypt` encrypted passwords)
+  -  Take a backup of the existing configuration file and replace it with the following contents and Add the below contents to the file /etc/docker-distribution/registry/config.yml
 
     ```
-    htpasswd -Bbc htpasswd dummy dummy
+     mv /etc/docker-distribution/registry/config.yml /root/original-docker-distribution-config.xml
+     
+     
+     
+     version: 0.1
+log:
+  fields:
+    service: registry
+    environment: development
+storage:
+    cache:
+        layerinfo: inmemory
+    filesystem:
+        rootdirectory: /opt/docker-registry
+    delete:
+        enabled: true
+http:
+    addr: :5000
+    tls:
+      certificate: /etc/docker-distribution/certs/domain.crt
+      key: /etc/docker-distribution/certs/domain.key
+    host: https://registry-internal:5000
+    secret: testsecret
+    relativeurls: false
+auth:
+    htpasswd:
+      realm: basic-realm
+      path: /etc/docker-distribution/registry_passwd
+     
 
-    -- cat /etc/docker-distribution/registry/htpasswd
-    dummy:$2y$11$dWVvIw.udulD610HO1H3Z.kfzhGBzaHV9Pc703bWxNpMXVQMOg42e
+
+Note
+Replace the "host" line appropriately with the FQDN
+Replace the "secret" with a random value
+Replace the rootdirectory as required
+Indentation should be properly maintained
+The password format of /etc/docker-distribution/registry_passwd must be bcrypt
+
+
     ```
 
-3.   Start and enable Docker Registry
+3.   Start the docker-distribution service and add port 5000 to the internal and public zone
 
 ```
-systemctl enable docker-distribution
-systemctl restart docker-distribution
-systemctl status docker-distribution
+systemctl start docker-distribution
 
 firewall-cmd --add-port=5000/tcp --zone=internal --permanent
 firewall-cmd --add-port=5000/tcp --zone=public --permanent
 firewall-cmd --reload
 ```
+
+4.   Verify whether the docker registry is up using the curl command
+
+```
+curl -u dummy:dummy -k https://registry-internal:5000/v2/_catalog
+
+
+Note
+Replace the "registry-internal" with FWDN of your local registry
+It should list an empty repository
+
+```
+
+5.   Docker client configuration
+
+```
+ mkdir /etc/docker/certs.d/<FQDN>:5000
+
+   example 
+   mkdir /etc/docker/certs.d/registry-internal:5000
+
+```
+
+6.   Copy the domain.crt
+
+```
+ cp /etc/docker-distribution/certs/domain.crt /etc/docker/certs.d/registry-internal\:5000/domain.crt  
+ 
+ [example. replace the registry-internal with the FQDN of local registry]
+
+```
+
+7.   Trust this certificate
+
+```
+cp /etc/docker-distribution/certs/domain.crt    /etc/pki/ca-trust/source/anchors/registry-internal.crt   
+
+[replace registry-internal appropriately with the FQDN of loca registry!!!!]
+
+update-ca-trust 
+
+```
+
+8.   Add the newly created registry to the /etc/containers/registries.conf
+
+```
+registries:
+  - registry.access.redhat.com
+  - registry-internal:5000  
+  
+  
+Note:
+Create the directory under certs.d depending on the FQDN that you have configured while creating the certificate
+Replace the registry-internal appropriately
+
+```
+
+9.   Restart the docker-distribution service
+
+```
+systemctl restart docker-distribution 
+
+```
+
 
 **TROUBLESHOOTING:** If needed, to test or debug the registry configuration run
 ```
