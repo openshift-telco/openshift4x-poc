@@ -22,23 +22,20 @@ apr-util-1.5.2-6.el7.x86_64.rpm
   -  Generate the required certificate file for the docker-distribution service.
   Note: Ensure you use the registry FQDN as the CN when generating the certificates.
    
-      mkdir /etc/docker-distribution/certs
+   mkdir /etc/docker-distribution/certs
    cd /etc/docker-distribution/certs
    openssl req -newkey rsa:4096 -nodes -sha256 -keyout domain.key -x509 -days 365 -out domain.crt
    
    
 
   - Generate htpasswd based authentication
-  
-     htpasswd -cB /etc/docker-distribution/registry_passwd dummy dummy
+   htpasswd -cB /etc/docker-distribution/registry_passwd dummy dummy
      
 
-  -  Take a backup of the existing configuration file and replace it with the following contents and Add the below contents to the file /etc/docker-distribution/registry/config.yml
-
+  -  Take a backup of the existing configuration file and replace it with the following contents and Add the below contents to   the file /etc/docker-distribution/registry/config.yml
    
-     mv /etc/docker-distribution/registry/config.yml /root/original-docker-distribution-config.xml
-     
-     
+   mv /etc/docker-distribution/registry/config.yml /root/original-docker-distribution-config.xml
+       
      
      version: 0.1
 log:
@@ -222,7 +219,9 @@ Writing manifest to image destination
 Storing signatures
 ```
 
-# (optional) Using Dedicate Disk for registry
+# (optional) Using Dedicate Disk for registry.If you see following error message while uploading images into your local registry then either you create dedciated disk with fstype=1 or re-install your server with disk setup as fstype=1
+
+Could not get runtime: kernel does not support overlay fs: overlay: the backing xfs filesystem is formatted without d_type support, which leads to incorrect behavior. Reformat the filesystem with ftype=1 to enable d_type support. Running without d_type is not supported.: driver not supported
 
 1. Create partition in disk
    
