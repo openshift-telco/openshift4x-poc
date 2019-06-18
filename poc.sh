@@ -63,7 +63,7 @@ install_tools() {
 
 mirror () {
     echo "WARNING: This is an unsupported procedure"
-    oc adm -a ${AIRGAP_SECRET_JSON} release new --from-release=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
+    ./oc adm -a ${AIRGAP_SECRET_JSON} release new --from-release=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
     --mirror=${AIRGAP_REG}/${AIRGAP_REPO} --to-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 }
 
