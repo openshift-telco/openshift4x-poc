@@ -1,0 +1,24 @@
+version: 0.1
+log:
+  fields:
+    service: registry
+    environment: development
+storage:
+    cache:
+        layerinfo: inmemory
+    filesystem:
+        rootdirectory: /opt/docker-registry
+    delete:
+        enabled: true
+http:
+    addr: :5000
+    tls:
+      certificate: /etc/docker-distribution/certs/domain.crt
+      key: /etc/docker-distribution/certs/domain.key
+    host: https://test.example.com:5000
+    secret: testsecret1
+    relativeurls: false
+auth:
+    htpasswd:
+      realm: basic-realm
+      path: /etc/docker-distribution/registry_passwd
