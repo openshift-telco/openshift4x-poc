@@ -88,6 +88,8 @@ Reference official [documentation](https://docs.openshift.com/container-platform
 ***NOTE:*** If there is NO way to reach out to the external NTP and DNS servers from the masters and workers node then you can set proxy DNS . DNS/NTP query in this will flow like this . 
 - master node > bastian node > external DNS/NTP server 
 - worker node > bastian node > external DNS/NTP server 
+ 
+ In this case no need to set port=0 in /etc/dnsmasq.conf file.
 
 ### Load Balancer Configuration
 - Setup load balancerconfiguration in ***pass-through*** for Kubernetes API (`tcp/6443`), Machine Server Config (`tcp/22623`), OpenShift Routers HTTP and HTTPS (`tcp/80`, `tcp/443`)
