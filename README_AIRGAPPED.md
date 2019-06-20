@@ -99,7 +99,6 @@
 ```
 
 ## Proceed with standard UPI installation ***using*** the `./poc.sh` script
-- Proceed with standard UPI installation ***using*** the `./poc.sh` script
 
   1. Execute `poc.sh` script:
       ```
