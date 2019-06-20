@@ -209,6 +209,9 @@ firewall-cmd --reload
 
 firewall-cmd --zone=internal  --list-services
 firewall-cmd --zone=internal  --list-ports
+
+***NOTE:*** After setting up ports and services as shown above if still dnsmasq is not responding to the DHCP Request then its better to completely disable firewalld service !!!!!
+
 ```
 
 # INSTALLATION
