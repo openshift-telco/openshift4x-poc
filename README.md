@@ -91,6 +91,10 @@ Reference official [documentation](https://docs.openshift.com/container-platform
  
  In this case no need to set port=0 in /etc/dnsmasq.conf file.
 
+***NOTE:*** While setting up the external DNS server make sure the A records priorities for master and etcd are set properly . We want to have higher priority for master A records as compared to etcd A record . Otherwise what will happen is when we try to install master nodes ,during the reverse lookup step it might get the etcd FQDN instead of master FQDN!!  
+
+***NOTE:*** If using Microsoft external DNS server you can use CNAME for etcd FQDN's
+
 ### Load Balancer Configuration
 - Setup load balancerconfiguration in ***pass-through*** for Kubernetes API (`tcp/6443`), Machine Server Config (`tcp/22623`), OpenShift Routers HTTP and HTTPS (`tcp/80`, `tcp/443`)
 
