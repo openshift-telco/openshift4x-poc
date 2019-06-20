@@ -69,9 +69,7 @@
 
 ## Setup PXE Boot Configurations
 
-1. Create PXE Boot menu to be used by the environment [/var/lib/tftpboot/pxelinux.cfg/default](utils/pxelinux.cfg-default-bios)
-
-2. Download RHCOS images.
+1. Download RHCOS images.
 
   - Running `./poc.sh images` download all the images to `./images` on your current directory. It should be similar to this list (versions may be different):
   
@@ -86,9 +84,9 @@
     └── rhcos-4.1.0-x86_64-metal-uefi.raw.gz
     ```
 
-3. Open the `openshift-client-linux-4.1.0.tar.gz` and the `openshift-install-linux-4.1.0.tar.gz` into your current directory. This will provide the `openshift-installer`, `oc` and `kubectl` binaries.
+2. Open the `openshift-client-linux-4.1.0.tar.gz` and the `openshift-install-linux-4.1.0.tar.gz` into your current directory. This will provide the `openshift-installer`, `oc` and `kubectl` binaries.
    
-4. Copy RHCOS PXE images and RHCOS images into the corresponding folders
+3. Copy RHCOS PXE images and RHCOS images into the corresponding folders
    
 ```
 ./poc.sh prep_images
@@ -100,6 +98,7 @@
 ./poc.sh prep_installer
 ```
 
+## Proceed with standard UPI installation ***using*** the `./poc.sh` script
 - Proceed with standard UPI installation ***using*** the `./poc.sh` script
 
   1. Execute `poc.sh` script:
