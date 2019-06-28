@@ -1,0 +1,31 @@
+# /etc/systemd/system/poc-tiller.service
+#
+# Copy (chmod 664) to /etc/systemd/system/poc-tiller.service
+#
+# systemctl daemon-reload
+# systemctl start poc-tiller
+# systemctl status poc-tiller
+# systemctl enable poc-tiller
+#
+
+[Unit]
+Description=OpenShift POC Tiller 
+After=network.target syslog.target
+
+[Service]
+Type=simple
+TimeoutStartSec=5m
+ExecStartPre=-/usr/bin/podman rm "poc-tiller"
+
+#ExecStart=/usr/bin/podman run --name poc-tiller -p 44134:44134 gcr.io/kubernetes-helm/tiller:v2.14.1
+ExecStart=/usr/bin/podman run --name poc-tiller -p 44134:44134 tiller:v2.14.1
+
+
+ExecReload=-/usr/bin/podman stop "poc-tiller"
+ExecReload=-/usr/bin/podman rm "poc-tiller"
+ExecStop=-/usr/bin/podman stop "poc-tiller"
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

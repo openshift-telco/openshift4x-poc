@@ -1,0 +1,29 @@
+# /etc/systemd/system/poc-lb.service
+#
+# Copy (chmod 664) to /etc/systemd/system/poc-lb.service
+#
+# systemctl daemon-reload
+# systemctl start poc-lb
+# systemctl status poc-lb
+# systemctl enable poc-lb
+#
+
+[Unit]
+Description=OpenShift POC Load Balancer
+After=network.target syslog.target
+
+[Service]
+Type=simple
+TimeoutStartSec=5m
+ExecStartPre=-/usr/bin/podman rm "poc-lb"
+
+ExecStart=/usr/bin/podman run --name poc-lb --net host -v /opt/haproxy:/usr/local/etc/haproxy:ro haproxy
+
+ExecReload=-/usr/bin/podman stop "poc-lb"
+ExecReload=-/usr/bin/podman rm "poc-lb"
+ExecStop=-/usr/bin/podman stop "poc-lb"
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
