@@ -68,7 +68,7 @@ Modify the following environment variables of `./poc.sh` script to match your en
 ```
 OCP_RELEASE=4.1.0
 RHCOS_BUILD=4.1.0
-WEBROOT=/usr/share/nginx/html/
+WEBROOT=/opt/nginx/html/
 TFTPROOT=/var/lib/tftpboot/
 POCDIR=ocp4poc
 ```
@@ -86,10 +86,10 @@ POCDIR=ocp4poc
 Reference official [documentation](https://docs.openshift.com/container-platform/4.1/installing/installing_bare_metal/installing-bare-metal.html#installation-dns-user-infra_installing-bare-metal) for details on special entries required in DNS.
 
 ***NOTE:*** If there is NO way to reach out to the external NTP and DNS servers from the masters and workers node then you can set proxy DNS . DNS/NTP query in this will flow like this . 
-- master node > bastian node > external DNS/NTP server 
-- worker node > bastian node > external DNS/NTP server 
+- master node > bastion node > external DNS/NTP server 
+- worker node > bastion node > external DNS/NTP server 
  
- In this case no need to set port=0 in /etc/dnsmasq.conf file.
+ In this case no need to use bastion as recursive DNS, set port=0 in /etc/dnsmasq.conf file.
 
 ***NOTE:*** While setting up the external DNS server make sure the A records priorities for master and etcd are set properly . We want to have higher priority for master A records as compared to etcd A record . Otherwise what will happen is when we try to install master nodes ,during the reverse lookup step it might get the etcd FQDN instead of master FQDN!!  
 
@@ -99,10 +99,10 @@ Reference official [documentation](https://docs.openshift.com/container-platform
 - Setup load balancerconfiguration in ***pass-through*** for Kubernetes API (`tcp/6443`), Machine Server Config (`tcp/22623`), OpenShift Routers HTTP and HTTPS (`tcp/80`, `tcp/443`)
 
 Reference Load Balancer configurations available in the `utils` folder (use one of the two):
-  - Load balancer using [NGINX](utils/nginx.conf)
-  - Load balancer using [HAProxy](utils/haproxy.cfg)
+  - Load balancer using [HAProxy](utils/haproxy.cfg) at system level (installed from RPM)
+  - Load balancer using HAProxy as [System Container](utils/poc-lb.service) managed by systemd
 
-NOTE: If seeing port bind errors starting the NGINX load balancer check SELinux settings:
+NOTE: If seeing port bind errors starting the load balancer check SELinux settings:
 ```
 # List the permited ports
 semanage port -l | grep http_port_t
@@ -129,19 +129,32 @@ semanage port -m -t http_port_t -p tcp 8000
 
 # Preparing the Bastion Node
 
-- (Option 1) Using NGINX as web server for Ignition files and load balancer
+- Install PXE Boot pre-requisites
     ```
-    yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma nginx
-    ```
-- (Option 2) Using NGINX as web server for Ignition and HAProxy as load balancer
-    ```
-    yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma nginx haproxy
+    yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma
     ```
 
-***NOTE:*** Using NGINX my require the use of the EPEL repo:
-```
-rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-```
+- (optional) Setup HAProxy as load balancer
+    - Update `./utils/haproxy.cfg` to match your environment
+    ```
+    mkdir -p /opt/haproxy
+    cp ./utils/haproxy.cfg /opt/haproxy
+    cp ./utils/poc-lb.service /etc/systemd/system/poc-lb.service
+    systemctl daemon-reload
+    systemctl start poc-lb
+    systemctl status poc-lb
+    systemctl enable poc-lb
+    ```
+
+- Setup web server for Ignition and PXE files
+    ```
+    mkdir -p /op/nginx/html/metal
+    cp ./utils/poc-pxe-http.service /etc/systemd/system/poc-pxe-http.service
+    systemctl daemon-reload
+    systemctl start poc-pxe-http
+    systemctl status poc-pxe-http
+    systemctl enable poc-pxe-http
+    ```
 
 ## Setting up DNSmasq for PXE Boot
 
