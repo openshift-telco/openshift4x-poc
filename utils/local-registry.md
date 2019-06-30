@@ -17,7 +17,7 @@ The following instructions use `/opt/registry` for the locations of the volumes 
     ```
     htpasswd -cB /opt/registry/auth/htpasswd dummy dummy
     ```
-4. Run the registry:
+4. Install and run the `poc-registry.service`:
     ```
     cp ./utils/poc-registry.service /etc/systemd/system/poc-registry.service
 
