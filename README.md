@@ -138,9 +138,12 @@ semanage port -m -t http_port_t -p tcp 8000
     - Update `./utils/haproxy.cfg` to match your environment
     ```
     mkdir -p /opt/haproxy
+
     cp ./utils/haproxy.cfg /opt/haproxy
     cp ./utils/poc-lb.service /etc/systemd/system/poc-lb.service
+
     systemctl daemon-reload
+
     systemctl start poc-lb
     systemctl status poc-lb
     systemctl enable poc-lb
@@ -149,8 +152,11 @@ semanage port -m -t http_port_t -p tcp 8000
 - Setup web server for Ignition and PXE files
     ```
     mkdir -p /op/nginx/html/metal
+
     cp ./utils/poc-pxe-http.service /etc/systemd/system/poc-pxe-http.service
+
     systemctl daemon-reload
+    
     systemctl start poc-pxe-http
     systemctl status poc-pxe-http
     systemctl enable poc-pxe-http
