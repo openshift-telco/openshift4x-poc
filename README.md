@@ -132,15 +132,20 @@ semanage port -m -t http_port_t -p tcp 8000
 - Install PXE Boot pre-requisites
     ```
     yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma
+
+    subscription-manager repos --enable rhel-7-server-extras-rpms
+    yum -y install podman skopeo
     ```
 
 - (optional) Setup HAProxy as load balancer
     - Update `./utils/haproxy.cfg` to match your environment
     ```
-    mkdir -p /opt/haproxy
+    mkdir -pv /opt/haproxy
 
     cp ./utils/haproxy.cfg /opt/haproxy
     cp ./utils/poc-lb.service /etc/systemd/system/poc-lb.service
+
+    podman pull haproxy
 
     systemctl daemon-reload
 
@@ -151,9 +156,11 @@ semanage port -m -t http_port_t -p tcp 8000
 
 - Setup web server for Ignition and PXE files
     ```
-    mkdir -p /op/nginx/html/metal
+    mkdir -pv /opt/nginx/html/metal
 
     cp ./utils/poc-pxe-http.service /etc/systemd/system/poc-pxe-http.service
+
+    podman pull nginx
 
     systemctl daemon-reload
     
@@ -164,7 +171,7 @@ semanage port -m -t http_port_t -p tcp 8000
 
 ## Setting up DNSmasq for PXE Boot
 
-1. Disable DNS in DNSmasq by setting `port=0`
+1. (if already running Bind server in Bastion) Disable DNS in DNSmasq by setting `port=0`
     ```
     vi /etc/dnsmasq.conf
     ...
@@ -172,14 +179,26 @@ semanage port -m -t http_port_t -p tcp 8000
     ...
     ```
 2. Configure DHCP and DHCP PXE Options following the reference [dnsmasq-pxe.conf](utils/dnsmasq-pxe.conf)
+    ```
+    cp ./utils/dnsmasq-pxe.conf /etc/dnsmasq.d/dnsmasq-pxe.conf
+    ```
+NOTE: Update `/etc/dnsmasq.d/dnsmasq-pxe.conf` to match environment
 
 ## Setup PXE Boot Configurations
 
 1. Create PXE Boot menu to be used by the environment [/var/lib/tftpboot/pxelinux.cfg/default](utils/pxelinux.cfg-default-bios)
 
+```
+mkdir -pv /var/lib/tftpboot/pxelinux.cfg/
+
+copy ./utils/pxelinux.cfg-default-bios /var/lib/tftpboot/pxelinux.cfg/default
+```
+NOTE: Update `/var/lib/tftpboot/pxelinux.cfg/default` to match environment.
+
+
 2. Download RHCOS images.
 
-  - Running `./poc.sh images` download all the images to `./images` on your current directory. It should be similar to this list (versions may be different):
+  - Running `./poc.sh get_images` download all the images to `./images` on your current directory. It should be similar to this list (versions may be different):
   
     ```
     images/

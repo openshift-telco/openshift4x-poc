@@ -4,7 +4,7 @@
 # UPDATE TO MATCH YOUR ENVIRONMENT
 ##############################################################
 
-OCP_RELEASE=4.1.0
+OCP_RELEASE=4.1.4
 RHCOS_BUILD=4.1.0
 WEBROOT=/op/nginx/html
 TFTPROOT=/var/lib/tftpboot
@@ -186,7 +186,7 @@ case $key in
     tools)
         install_tools
         ;;
-    get_images)
+    get_images|images)
         get_images
         ;;
     mirror)
