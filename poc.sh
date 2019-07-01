@@ -6,7 +6,7 @@
 
 OCP_RELEASE=4.1.4
 RHCOS_BUILD=4.1.0
-WEBROOT=/op/nginx/html
+WEBROOT=/opt/nginx/html
 TFTPROOT=/var/lib/tftpboot
 POCDIR=ocp4poc
 
