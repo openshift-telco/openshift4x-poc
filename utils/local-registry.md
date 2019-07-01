@@ -15,8 +15,10 @@ The following instructions use `/opt/registry` for the locations of the volumes 
 
 3. Generate username and password (must use bcrpt formated passwords) 
     ```
-    htpasswd -cB /opt/registry/auth/htpasswd dummy dummy
+    htpasswd -bBc /opt/registry/auth/htpasswd dummy dummy
     ```
+    NOTE: If `htpasswd` not available install HTTP tools `yum -y install httpd-tools`
+
 4. Install and run the `poc-registry.service`:
     ```
     cp ./utils/poc-registry.service /etc/systemd/system/poc-registry.service
