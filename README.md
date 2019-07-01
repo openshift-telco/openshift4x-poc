@@ -131,6 +131,7 @@ semanage port -m -t http_port_t -p tcp 8000
 
 - Install PXE Boot pre-requisites
     ```
+    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma
 
     subscription-manager repos --enable rhel-7-server-extras-rpms
@@ -202,8 +203,8 @@ NOTE: Update `/var/lib/tftpboot/pxelinux.cfg/default` to match environment.
   
     ```
     images/
-    ├── openshift-client-linux-4.1.0.tar.gz
-    ├── openshift-install-linux-4.1.0.tar.gz
+    ├── openshift-client-linux-4.1.4.tar.gz
+    ├── openshift-install-linux-4.1.4.tar.gz
     ├── rhcos-4.1.0-x86_64-installer-initramfs.img
     ├── rhcos-4.1.0-x86_64-installer.iso
     ├── rhcos-4.1.0-x86_64-installer-kernel
@@ -228,6 +229,11 @@ NOTE: Update `/var/lib/tftpboot/pxelinux.cfg/default` to match environment.
 ## Ports to open if Bastion node running all the ancillary services
 
 ```
+firewall-cmd --zone=public   --change-interface=eth0
+firewall-cmd --zone=internal --change-interface=eth1
+
+firewall-cmd --get-active-zones
+
 firewall-cmd --zone=public   --permanent --add-port=6443/tcp 
 firewall-cmd --zone=public   --permanent --add-port=22623/tcp 
 firewall-cmd --zone=public   --permanent --add-service=http
@@ -247,8 +253,6 @@ firewall-cmd --reload
 
 firewall-cmd --zone=internal  --list-services
 firewall-cmd --zone=internal  --list-ports
-
-***NOTE:*** After setting up ports and services as shown above if still dnsmasq is not responding to the DHCP Request then its better to completely disable firewalld service !!!!!
 
 ```
 
