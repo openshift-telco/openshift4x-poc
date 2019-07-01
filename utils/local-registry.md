@@ -23,7 +23,7 @@ The following instructions use `/opt/registry` for the locations of the volumes 
     ```
     cp ./utils/poc-registry.service /etc/systemd/system/poc-registry.service
 
-    podman pull registry
+    podman pull registry:2
 
     systemctl daemon-reload
 
