@@ -63,8 +63,13 @@ install_tools() {
 
 mirror () {
     echo "WARNING: This is an unsupported procedure"
-    ./oc adm release mirror -a ${AIRGAP_SECRET_JSON} --insecure=true --from=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
-    --to-release-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE} --to=${AIRGAP_REG}/${AIRGAP_REPO}
+
+    # Note: This option keep old metadata references to quay.io
+#    ./oc adm release mirror -a ${AIRGAP_SECRET_JSON} --insecure=true --from=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
+#    --to-release-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE} --to=${AIRGAP_REG}/${AIRGAP_REPO}
+
+    ./oc adm release new -a ${AIRGAP_SECRET_JSON} —-insecure —-from-release=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
+    -—mirror=${AIRGAP_REG}/${AIRGAP_REPO} -—to-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 }
 
 clean() {
