@@ -359,3 +359,41 @@ storage                              4.1.0     True        False         False  
 ```
 oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"storage":{"emptyDir":{}}}}'
 ```
+
+# Assigning persistent storage for image-registry
+
+- Set the PVC name for the image registry
+    ```
+    oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"storage":{"pvc":{"claim":"{changeme}"}}}}'
+    ```
+
+- For dynamic PVC creation by the operator edit the configuration and delete the name of the claim
+    ```
+    oc edit configs.imageregistry.operator.openshift.io 
+
+    # Remove the 'changeme' (including the '') and leave 'claim:' only.
+    ... 
+    storage:
+      pvc:
+        claim:
+    ...
+    ```
+
+- Create PV for the image registry. 
+  
+    Example: `pv-image-registry.yaml`
+    ```
+    apiVersion: v1
+    kind: PersistentVolume
+    metadata:
+    name: pv-image-registry 
+    spec:
+    capacity:
+        storage: 100Gi 
+    accessModes:
+    - ReadWriteMany 
+    nfs: 
+        path: /path/to/nfs/image-registry  
+        server: 192.168.88.7 
+    persistentVolumeReclaimPolicy: Retain 
+    ```
