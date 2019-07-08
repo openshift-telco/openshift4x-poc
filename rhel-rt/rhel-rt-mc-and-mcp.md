@@ -95,3 +95,7 @@ oc create -f mcp-worker-rt.yaml
 ***NOTE:*** These steps need to be documented.
 
 Apply the real-time `tuned` profile to `worker-rt` MCP.
+
+
+## Tagging Nodes for the MachineConfigPool
+Apply the corresponding label to the RHEL-RT node: `node-role.kubernetes.io/worker-rt` and remove the standard `node-role.kubernetes.io/worker` label.
