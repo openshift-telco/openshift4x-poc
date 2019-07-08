@@ -18,6 +18,7 @@
     mount -o loop,ro ipxe.iso /media
 
     cp /media/ipxe.krn /mnt
+
     cat > /mnt/syslinux.cfg <<EOF
     DEFAULT ipxe
     LABEL ipxe
@@ -36,5 +37,7 @@
     ```
 
 # Credits
+
+Thanks to David Cain for the guidance.
 
 This information is based on work by kimizhang at https://kimizhang.wordpress.com/2013/08/26/create-pxe-boot-image-for-openstack/
