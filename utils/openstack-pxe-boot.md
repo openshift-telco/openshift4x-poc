@@ -29,6 +29,11 @@
     ```
 4. Uploade the resulting `pxeboot.img` to Glance
 
+5. Disable port security for the OCP subnet
+    ```
+    openstack network set --disable-port-security <subnet>
+    openstack subnet set --port-security-enabled=False <subnet>
+    ```
 
 # Credits
 
