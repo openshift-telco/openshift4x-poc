@@ -36,5 +36,13 @@ spec:
                 }
             ]
         }
-    systemd: {}
+    systemd: {
+        "units": [
+            {
+                "contents": "[Unit]\nDescription=Update system CA\nAfter=syslog.target network.target\n\n[Service]\nExecStart=/usr/bin/update-ca-trust\n\n[Install]\nWantedBy=multi-user.target\n",
+                "enabled": true,
+                "name": "update-ca.service"
+            }
+        ]
+    }
   osImageURL: ""
