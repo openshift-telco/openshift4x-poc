@@ -39,7 +39,7 @@ spec:
     systemd: {
         "units": [
             {
-                "contents": "[Unit]\nDescription=Update system CA\nAfter=syslog.target network.target\n\n[Service]\nExecStart=/usr/bin/update-ca-trust\n\n[Install]\nWantedBy=multi-user.target\n",
+                "contents": "[Unit]\nDescription=Update system CA\nAfter=syslog.target network.target\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/update-ca-trust\nRemainAfterExit=true\n\n[Install]\nWantedBy=multi-user.target\n",
                 "enabled": true,
                 "name": "update-ca.service"
             }
