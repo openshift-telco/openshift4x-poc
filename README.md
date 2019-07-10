@@ -154,6 +154,15 @@ semanage port -m -t http_port_t -p tcp 8000
     systemctl status poc-lb
     systemctl enable poc-lb
     ```
+     
+    Note: To accept asymmetrically routed packets set rp_filter = 2 (Credits: Thanks to Jay Cromer)
+    ```
+    echo "net.ipv4.conf.default.rp_filter = 2" >> /etc/sysctl.conf 
+    echo "net.ipv4.conf.all.rp_filter = 2" >> /etc/sysctl.conf 
+
+    echo 2 > /proc/sys/net/ipv4/conf/default/rp_filter
+    echo 2 > /proc/sys/net/ipv4/conf/all/rp_filter
+    ```
 
 - Setup web server for Ignition and PXE files
     ```
