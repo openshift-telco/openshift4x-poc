@@ -1,0 +1,47 @@
+{
+    "ignition": {
+        "version": "2.2.0",
+        "config": {
+            "append": [
+                {
+                    "source": "https://bastion.example.com:8000/worker.ign",
+                    "verification": {}
+                }
+            ]
+        }
+    },
+    "networkd": {},
+    "passwd": {},
+    "storage": {
+        "files": [
+            {
+                "filesystem": "root",
+                "path": "/etc/sysconfig/network-scripts/ifcfg-enp1s0",
+                "contents": {
+                    "source": "data:;base64,<CONTENT_HERE>",
+                    "verification": {}
+                },
+                "mode": 420
+            },
+            {
+                "filesystem": "root",
+                "path": "/etc/resolv.conf",
+                "contents": {
+                    "source": "data:;base64,<CONTENT_HERE>",
+                    "verification": {}
+                },
+                "mode": 420
+            },
+            {
+                "filesystem": "root",
+                "path": "/etc/hostname",
+                "contents": {
+                    "source": "data:;base64,<CONTENT_HERE>",
+                    "verification": {}
+                },
+                "mode": 420
+            }
+        ]
+    },
+    "systemd": {}
+}
