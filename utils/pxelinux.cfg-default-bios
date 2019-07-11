@@ -1,3 +1,6 @@
+###########################################################
+# Reference: /var/lib/tftpboot/pxelinux.cfg/default
+###########################################################
 UI vesamenu.c32
 #DEFAULT menu.c32
 DEFAULT LOCAL
@@ -24,16 +27,30 @@ LABEL BOOTSTRAP-BIOS
   APPEND rd.neednet=1 initrd=rhcos/rhcos-initramfs.img console=tty0 coreos.inst=yes coreos.inst.install_dev=sda coreos.inst.ignition_url=http://192.168.1.1:8000/bootstrap.ign coreos.inst.image_url=http://192.168.1.1:8000/metal/rhcos-4.1.0-x86_64-metal-bios.raw.gz ip=eno1:dhcp 
 
 LABEL LOCAL
-  MENU LABEL ^7 Boot from Local Disk
+  MENU LABEL ^4 BOOT FROM LOCAL DISK
   MENU DEFAULT
   LOCALBOOT 0
 
+###########################################################
+# SECTION FOR ADVANCED TROUBLESHOOTING
+# man dracut.cmdline for options
+###########################################################
 LABEL RECOVERY1
   MENU LABEL ^8 Recovery (initqueue)
   KERNEL rhcos/rhcos-kernel
   APPEND rd.break=initqueue  rd.neednet=1 initrd=rhcos/rhcos-initramfs.img console=tty0 ip=eno1:dhcp
 
+# NOTES: Using rd.break=initqueue
+# Identify disk: lsblk
+# Mount root partition: mkdir /mnt ; mount /dev/sda2 /mnt ; cd /mnt
+
 LABEL RECOVERY2
   MENU LABEL ^9 Recovery (pre-mount)
   KERNEL rhcos/rhcos-kernel
   APPEND rd.break=pre-mount  rd.neednet=1 initrd=rhcos/rhcos-initramfs.img console=tty0 ip=eno1:dhcp
+
+# NOTES: Using rd.break=pre-mount
+# cat /proc/cmdline
+###########################################################
+# END OF FILE
+###########################################################
