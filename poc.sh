@@ -71,9 +71,9 @@ mirror () {
     ./oc adm release new -a ${AIRGAP_SECRET_JSON} --insecure --from-release=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
     --mirror=${AIRGAP_REG}/${AIRGAP_REPO} --to-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 
-    echo "Retrieve `openshift-install` from local container repository"
+    #echo "Retrieve `openshift-install` from local container repository"
     # NOTE: This `openshift-install` binary does not requires the env variable
-    ./oc adm -a ${AIRGAP_SECRET_JSON} release extract --command='openshift-install' ${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
+    #./oc adm -a ${AIRGAP_SECRET_JSON} release extract --command='openshift-install' ${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 }
 
 clean() {
