@@ -4,7 +4,7 @@
 # UPDATE TO MATCH YOUR ENVIRONMENT
 ##############################################################
 
-OCP_RELEASE=4.1.4
+OCP_RELEASE=4.1.11
 RHCOS_BUILD=4.1.0
 WEBROOT=/opt/nginx/html
 TFTPROOT=/var/lib/tftpboot
