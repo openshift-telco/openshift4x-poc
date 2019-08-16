@@ -116,6 +116,12 @@ customizations () {
         cp ./utils/97-worker-proxy.yaml ./${POCDIR}/openshift/
     fi
 
+    if [[ -f ./utils/01-master-bond1.yaml ]]; then
+        echo "Applying Bond configuration"
+        cp ./utils/01-master-bond1.yaml ./${POCDIR}/openshift/
+        cp ./utils/01-worker-bond1.yaml ./${POCDIR}/openshift/
+    fi
+
     echo "Generating new Ignition Configs"
     ./openshift-install create ignition-configs --dir=${POCDIR}
 

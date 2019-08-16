@@ -1,0 +1,60 @@
+# REMOVE THESE COMMENTS
+# To obtain the BASE64 encoding:
+#   cat /etc/sysconfig/network-scripts/ifcfg-bond1 | base64 -w0 
+#   cat /etc/sysconfig/network-scripts/ifcfg-ens3f0 | base64 -w0 
+#   cat /etc/sysconfig/network-scripts/ifcfg-ens3f1 | base64 -w0 
+#   cat /etc/sysconfig/network-scripts/ifcfg-vlan403 | base64 -w0 
+#
+apiVersion: machineconfiguration.openshift.io/v1
+kind: MachineConfig
+metadata:
+  creationTimestamp: null
+  labels:
+    machineconfiguration.openshift.io/role: worker
+  name: 01-worker-bond1
+spec:
+  config:
+    ignition:
+      config: {}
+      security:
+        tls: {}
+      timeouts: {}
+      version: 2.2.0
+    networkd: {}
+    passwd: {}
+    storage: {
+            "files": [
+                {
+                    "path": "/etc/sysconfig/network-scripts/ifcfg-bond1",
+                    "filesystem": "root",
+                    "mode": 420,
+                    "contents": {
+                    "source": "data:;base64,<BASE64_IFCFG_BOND1>"
+                    }
+                },
+                {
+                    "path": "/etc/sysconfig/network-scripts/ifcfg-ens3f0",
+                    "filesystem": "root",
+                    "mode": 420,
+                    "contents": {
+                    "source": "data:;base64,<BASE64_IFCFG_ENS3F0>"
+                    }
+                },
+                {
+                    "path": "/etc/sysconfig/network-scripts/ifcfg-ens3f1",
+                    "filesystem": "root",
+                    "mode": 420,
+                    "contents": {
+                    "source": "data:;base64,<BASE64_IFCFG_ENS3F1>"
+                    }
+                },         
+                {
+                    "path": "/etc/sysconfig/network-scripts/ifcfg-vlan403",
+                    "filesystem": "root",
+                    "mode": 420,
+                    "contents": {
+                    "source": "data:;base64,<BASE64_IFCFG_VLAN403>"
+                    }
+                }       
+            ]
+        }
