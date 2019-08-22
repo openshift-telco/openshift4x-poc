@@ -8,7 +8,7 @@
 #
 
 [Unit]
-Description=OpenShift POC HTTP for PXE Config
+Description=OpenShift POC Container Registry
 After=network.target syslog.target
 
 [Service]
