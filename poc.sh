@@ -151,8 +151,8 @@ prep_images () {
 
     echo "Copying RHCOS PXE Boot Images to ${TFTPROOT}"
     mkdir ${TFTPROOT}/rhcos/
-    cp ./images/rhcos-${RHCOS_BUILD}-installer-initramfs.img ${TFTPROOT}/rhcos/rhcos-initramfs.img
-    cp ./images/rhcos-${RHCOS_BUILD}-installer-kernel ${TFTPROOT}/rhcos/rhcos-kernel
+    cp ./images/rhcos-${RHCOS_IMAGE_BASE}-installer-initramfs.img ${TFTPROOT}/rhcos/rhcos-initramfs.img
+    cp ./images/rhcos-${RHCOS_IMAGE_BASE}-installer-kernel ${TFTPROOT}/rhcos/rhcos-kernel
     tree ${TFTPROOT}/rhcos/
 }
 
