@@ -4,8 +4,9 @@
 # UPDATE TO MATCH YOUR ENVIRONMENT
 ##############################################################
 
-OCP_RELEASE=4.1.11
-RHCOS_BUILD=4.1.0
+OCP_RELEASE=4.2.0-0.nightly-2019-10-01-210901
+RHCOS_BUILD=4.2.0-0.nightly-2019-08-28-152644
+
 WEBROOT=/opt/nginx/html
 TFTPROOT=/var/lib/tftpboot
 POCDIR=ocp4poc
@@ -18,7 +19,9 @@ POCDIR=ocp4poc
 
 AIRGAP_REG='registry.ocp4poc.example.com:5000'
 AIRGAP_REPO='ocp4/openshift4'
+
 UPSTREAM_REPO='openshift-release-dev'   ## or 'openshift'
+RELEASE_NAME='ocp-release'
 AIRGAP_SECRET_JSON='pull-secret-2.json'
 #export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 
@@ -33,17 +36,18 @@ usage() {
 
 get_images() {
     mkdir images ; cd images 
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-x86_64-installer-initramfs.img
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-x86_64-installer-kernel
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-x86_64-installer.iso
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-x86_64-metal-bios.raw.gz
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-x86_64-metal-uefi.raw.gz
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-installer-initramfs.img
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-installer-kernel
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-metal-bios.raw.gz
 
-    # Not applicable for bare-metal deployment
-    ##curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.1/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-x86_64-vmware.ova
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-installer.iso
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-openstack.qcow2
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-qemu.qcow2
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-vmware.ova
 
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_RELEASE}/openshift-client-linux-${OCP_RELEASE}.tar.gz 
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_RELEASE}/openshift-install-linux-${OCP_RELEASE}.tar.gz
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/${OCP_RELEASE}/openshift-client-linux-${OCP_RELEASE}.tar.gz 
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/${OCP_RELEASE}/openshift-install-linux-${OCP_RELEASE}.tar.gz
 
     cd ..
     tree images
@@ -51,10 +55,10 @@ get_images() {
 
 install_tools() {
     echo -e "NOTE: Tools used by $0 are not installed by this script. Manually install one of the following options:"
-    echo -e "\nWith NGINX LB:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma nginx"
+    echo -e "\nWith NGINX LB:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma"
 
     echo -e "\t Note: May need EPEL repo: rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-    echo -e "\nWith HAProxy LB:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma haproxy\n"
+    echo -e "\nWith HAProxy LB:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma\n"
 
     echo "Downloading `filestranspiler`"
     curl -o ./utils/filetranspile https://raw.githubusercontent.com/ashcrow/filetranspiler/master/filetranspile
@@ -62,14 +66,16 @@ install_tools() {
 }
 
 mirror () {
-    echo "WARNING: This is an unsupported procedure"
-
+    echo "Mirroring from Quay into Local Registry"
+    # 4.2
     # Note: This option keep old metadata references to quay.io
-#    ./oc adm release mirror -a ${AIRGAP_SECRET_JSON} --insecure=true --from=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
-#    --to-release-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE} --to=${AIRGAP_REG}/${AIRGAP_REPO}
+   ./oc adm release mirror -a ${AIRGAP_SECRET_JSON} --insecure=true --from=quay.io/${UPSTREAM_REPO}/${RELEASE_NAME}:${OCP_RELEASE} \
+   --to-release-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE} --to=${AIRGAP_REG}/${AIRGAP_REPO}
 
-    ./oc adm release new -a ${AIRGAP_SECRET_JSON} --insecure --from-release=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
-    --mirror=${AIRGAP_REG}/${AIRGAP_REPO} --to-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
+# 4.1
+#     echo "WARNING: This is an unsupported procedure"
+#    ./oc adm release new -a ${AIRGAP_SECRET_JSON} --insecure --from-release=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
+#    --mirror=${AIRGAP_REG}/${AIRGAP_REPO} --to-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 
     #echo "Retrieve `openshift-install` from local container repository"
     # NOTE: This `openshift-install` binary does not requires the env variable
@@ -101,50 +107,31 @@ customizations () {
   
     # this workaround also need to be applied to the initial
     # master and worker ignition files after they are generated
-    cp ./utils/10-worker-nm-workaround.yaml ./${POCDIR}/openshift/
-    cp ./utils/10-master-nm-workaround.yaml ./${POCDIR}/openshift/
-
-    if [[ -f ./utils/98-master-registries.yaml ]]; then
-        echo "Applying custom registry configuration"
-        cp ./utils/98-master-registries.yaml ./${POCDIR}/openshift/
-        cp ./utils/98-worker-registries.yaml ./${POCDIR}/openshift/
-    fi
-
-    if [[ -f ./utils/97-master-proxy.yaml ]]; then
-        echo "Applying Proxy configuration"
-        cp ./utils/97-master-proxy.yaml ./${POCDIR}/openshift/
-        cp ./utils/97-worker-proxy.yaml ./${POCDIR}/openshift/
-    fi
-
-    if [[ -f ./utils/01-master-bond1.yaml ]]; then
-        echo "Applying Bond configuration"
-        cp ./utils/01-master-bond1.yaml ./${POCDIR}/openshift/
-        cp ./utils/01-worker-bond1.yaml ./${POCDIR}/openshift/
-    fi
+    cp -r ./customizations/*.yaml ./${POCDIR}/openshift/
 
     echo "Generating new Ignition Configs"
     ./openshift-install create ignition-configs --dir=${POCDIR}
 
-    echo "Create backup of Ignition files to apply additional customizations"
-    mv ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-bkup
-    mv ${POCDIR}/master.ign    ${POCDIR}/master.ign-bkup
-    mv ${POCDIR}/worker.ign    ${POCDIR}/worker.ign-bkup
+    # echo "Create backup of Ignition files to apply additional customizations"
+    # mv ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-bkup
+    # mv ${POCDIR}/master.ign    ${POCDIR}/master.ign-bkup
+    # mv ${POCDIR}/worker.ign    ${POCDIR}/worker.ign-bkup
 
-    echo "Updating Master and Workers Ignition files with NetworkManager patch"
-    jq -s '.[0] * .[1]' ${POCDIR}/master.ign-bkup ./utils/nm-patch.json > ${POCDIR}/master.ign
-    jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-bkup ./utils/nm-patch.json > ${POCDIR}/worker.ign
+    # echo "Updating Master and Workers Ignition files with NetworkManager patch"
+    # jq -s '.[0] * .[1]' ${POCDIR}/master.ign-bkup ./utils/nm-patch.json > ${POCDIR}/master.ign
+    # jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-bkup ./utils/nm-patch.json > ${POCDIR}/worker.ign
 
-    echo "Updating Bootstrap Ignition file to apply NetworkManager patch"
-    ./utils/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign-patch
+    # echo "Updating Bootstrap Ignition file to apply NetworkManager patch"
+    #./utils/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign-patch
 
     # Check if there are additional customizations for bootstrap.ign
-    if [[ -d ./utils/patch-node ]]; then
-        echo "Found patch-node directory. Encoding additional configuration files into bootstrap.ign"
-        ./utils/filetranspile -i ./${POCDIR}/bootstrap.ign-patch -f ./utils/patch-node > ./${POCDIR}/bootstrap.ign
-    else
-        echo "No additional files to be injected into bootstrap.ign"
-        cp ./${POCDIR}/bootstrap.ign-patch ./${POCDIR}/bootstrap.ign
-    fi
+    # if [[ -d ./customizations/bootstrap ]]; then
+    #     echo "Found bootstrap customization directory. Encoding additional configuration files into bootstrap.ign"
+    #     ./utils/filetranspile -i ./${POCDIR}/bootstrap.ign-patch -f ./customizations/bootstrap  > ./${POCDIR}/bootstrap.ign
+    # else
+    #     echo "No additional files to be injected into bootstrap.ign"
+    #     cp ./${POCDIR}/bootstrap.ign-patch ./${POCDIR}/bootstrap.ign
+    # fi
     echo "Customizations done."
 }
 
@@ -157,14 +144,14 @@ prep_installer () {
 prep_images () {
     echo "Copying RHCOS OS Images to ${WEBROOT}"
     mkdir ${WEBROOT}/metal/
-    cp -f ./images/rhcos-${RHCOS_BUILD}-x86_64-metal-bios.raw.gz ${WEBROOT}/metal/
-    cp -f ./images/rhcos-${RHCOS_BUILD}-x86_64-metal-uefi.raw.gz ${WEBROOT}/metal/
+    cp -f ./images/rhcos-${RHCOS_BUILD}-metal-bios.raw.gz ${WEBROOT}/metal/
+    cp -f ./images/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz ${WEBROOT}/metal/
     tree ${WEBROOT}/metal/
 
     echo "Copying RHCOS PXE Boot Images to ${TFTPROOT}"
     mkdir ${TFTPROOT}/rhcos/
-    cp ./images/rhcos-${RHCOS_BUILD}-x86_64-installer-initramfs.img ${TFTPROOT}/rhcos/rhcos-initramfs.img
-    cp ./images/rhcos-${RHCOS_BUILD}-x86_64-installer-kernel ${TFTPROOT}/rhcos/rhcos-kernel
+    cp ./images/rhcos-${RHCOS_BUILD}-installer-initramfs.img ${TFTPROOT}/rhcos/rhcos-initramfs.img
+    cp ./images/rhcos-${RHCOS_BUILD}-installer-kernel ${TFTPROOT}/rhcos/rhcos-kernel
     tree ${TFTPROOT}/rhcos/
 }
 

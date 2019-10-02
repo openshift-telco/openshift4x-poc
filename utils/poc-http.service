@@ -1,0 +1,28 @@
+#
+# Copy (chmod 664) to /etc/systemd/system/poc-http.service
+#
+# systemctl daemon-reload
+# systemctl start poc-http
+# systemctl status poc-http
+# systemctl enable poc-http
+#
+
+[Unit]
+Description=OpenShift POC HTTP for PXE Config
+After=network.target syslog.target
+
+[Service]
+Type=simple
+TimeoutStartSec=5m
+ExecStartPre=-/usr/bin/podman rm "poc-http"
+
+ExecStart=/usr/bin/podman run --name poc-http -p 8000:80 -v /opt/nginx/html:/usr/share/nginx/html:ro nginx
+
+ExecReload=-/usr/bin/podman stop "poc-http"
+ExecReload=-/usr/bin/podman rm "poc-http"
+ExecStop=-/usr/bin/podman stop "poc-http"
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

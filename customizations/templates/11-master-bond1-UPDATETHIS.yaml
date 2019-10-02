@@ -11,7 +11,7 @@ metadata:
   creationTimestamp: null
   labels:
     machineconfiguration.openshift.io/role: master
-  name: 01-master-bond1
+  name: 11-master-bond1
 spec:
   config:
     ignition:

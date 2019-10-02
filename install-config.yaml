@@ -19,5 +19,21 @@ networking:
   - 172.30.0.0/16
 platform:
   none: {}
-pullSecret: '{"auths": ...}' 
 sshKey: 'ssh-ed25519 AAAA...' 
+pullSecret: '{"auths": ...}' 
+# pullSecret: '{"auths":{"<bastion_host_name>:5000": {"auth": "<credentials>","email": "you@example.com"}}}'
+# proxy:
+#   httpProxy: http://<username>:<pswd>@<ip>:<port> 
+#   httpsProxy: http://<username>:<pswd>@<ip>:<port> 
+#   noProxy: example.com 
+# additionalTrustBundle: | 
+#   -----BEGIN CERTIFICATE-----
+#   ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
+#   -----END CERTIFICATE-----
+# imageContentSources: 
+# - mirrors:
+#   - <bastion_host_name>:5000/<repo_name>/release
+#   source: quay.io/openshift-release-dev/ocp-release
+# - mirrors:
+#   - <bastion_host_name>:5000/<repo_name>/release
+#   source: registry.svc.ci.openshift.org/ocp/release

@@ -11,7 +11,7 @@ metadata:
   creationTimestamp: null
   labels:
     machineconfiguration.openshift.io/role: worker
-  name: 01-worker-bond1
+  name: 11-worker-bond1
 spec:
   config:
     ignition:
