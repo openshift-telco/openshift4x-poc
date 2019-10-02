@@ -6,6 +6,7 @@
 
 OCP_RELEASE=4.2.0-0.nightly-2019-10-01-210901
 RHCOS_BUILD=4.2.0-0.nightly-2019-08-28-152644
+RHCOS_IMAGE_BASE=42.80.20190828.2
 
 WEBROOT=/opt/nginx/html
 TFTPROOT=/var/lib/tftpboot
@@ -36,15 +37,15 @@ usage() {
 
 get_images() {
     mkdir images ; cd images 
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-installer-initramfs.img
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-installer-kernel
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-metal-bios.raw.gz
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-installer-initramfs.img
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-installer-kernel
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-metal-bios.raw.gz
 
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-installer.iso
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-openstack.qcow2
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-qemu.qcow2
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_BUILD}-vmware.ova
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-metal-uefi.raw.gz
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-installer.iso
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-openstack.qcow2
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-qemu.qcow2
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-vmware.ova
 
     curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/${OCP_RELEASE}/openshift-client-linux-${OCP_RELEASE}.tar.gz 
     curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/${OCP_RELEASE}/openshift-install-linux-${OCP_RELEASE}.tar.gz
@@ -144,8 +145,8 @@ prep_installer () {
 prep_images () {
     echo "Copying RHCOS OS Images to ${WEBROOT}"
     mkdir ${WEBROOT}/metal/
-    cp -f ./images/rhcos-${RHCOS_BUILD}-metal-bios.raw.gz ${WEBROOT}/metal/
-    cp -f ./images/rhcos-${RHCOS_BUILD}-metal-uefi.raw.gz ${WEBROOT}/metal/
+    cp -f ./images/rhcos-${RHCOS_IMAGE_BASE}-metal-bios.raw.gz ${WEBROOT}/metal/
+    #cp -f ./images/rhcos-${RHCOS_IMAGE_BASE}-metal-uefi.raw.gz ${WEBROOT}/metal/
     tree ${WEBROOT}/metal/
 
     echo "Copying RHCOS PXE Boot Images to ${TFTPROOT}"
