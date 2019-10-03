@@ -1,6 +1,6 @@
-# OpenShift 4.1 UPI bare-metal (using PXE boot)
+# OpenShift 4.2 (pre-release) UPI bare-metal (using PXE boot)
 
-This is a reference documentation for POCs of OpenShift 4.1 UPI bare-metal deployment using PXE Boot.
+This is a reference documentation for POCs of OpenShift 4.2 UPI bare-metal deployment using PXE Boot.
 
 The initial deployment is as per the following diagram 
 
@@ -66,10 +66,12 @@ $ ./oc adm certificate approve <crt-name>
 
 Modify the following environment variables of `./poc.sh` script to match your environment.
 ```
-OCP_RELEASE=4.1.0
-RHCOS_BUILD=4.1.0
-WEBROOT=/opt/nginx/html/
-TFTPROOT=/var/lib/tftpboot/
+OCP_RELEASE=4.2.0-0.nightly-2019-10-01-210901
+RHCOS_BUILD=4.2.0-0.nightly-2019-08-28-152644
+RHCOS_IMAGE_BASE=42.80.20190828.2
+
+WEBROOT=/opt/nginx/html
+TFTPROOT=/var/lib/tftpboot
 POCDIR=ocp4poc
 ```
 ***NOTE:*** Next instructions assume this has been customized. 
@@ -83,7 +85,7 @@ POCDIR=ocp4poc
   - DNS reverse records for all the Nodes
   - DNS entries for special records used by OCP: `etcd`, `etcd srv`, `api`, `api-int`, and `*.apps` wildcard subdomain
 
-Reference official [documentation](https://docs.openshift.com/container-platform/4.1/installing/installing_bare_metal/installing-bare-metal.html#installation-dns-user-infra_installing-bare-metal) for details on special entries required in DNS.
+Reference official [documentation](https://docs.openshift.com/container-platform/4.2/installing/installing_bare_metal/installing-bare-metal.html#installation-dns-user-infra_installing-bare-metal) for details on special entries required in DNS.
 
 ***NOTE:*** If there is NO way to reach out to the external NTP and DNS servers from the masters and workers node then you can set proxy DNS . DNS/NTP query in this will flow like this . 
 - master node > bastion node > external DNS/NTP server 
@@ -112,20 +114,6 @@ semanage port -a -t http_port_t -p tcp 6443
 semanage port -a -t http_port_t -p tcp 22623
 semanage port -m -t http_port_t -p tcp 8000
 ```
-
-#  > > > CAVEATS AND THINGS TO KNOW < < <
-
-- WHEN USING A PHYSICAL SERVER WITH MULTIPLE NICs:
-  - The `PXE APPEND` command **must specify** the exact NIC to use during the PXE boot. For example using `ip=eth2:dhcp` and NOT the generic dhcp entry `ip=dhcp`
-  - If the `PXE APPEND` use the `ip=dhcp`, the DNS information from the *last* NIC to come up will be used as the entry for `/etc/resolv.conf`.
-    - If the last NIC to come up has a self-assigned IP and does not receive a DNS, the `/etc/resolv.conf` will be empty. When this happens the Node will attempt to use the localhost `[::1]` as the DNS and the installation will fail. To work around this, during the installation:
-      - Avoid having NICs with active link that are not receiving valid IPs
-      - Pass the `nameserver=<nameserver_ip>` with the `PXE APPEND` command
-  - If the server has *too many* NICs, the `NetworkManager-wait-online.service` may timeout before the DHCP timeout of each NIC card. When this happens, a cascaded failure may be triggered. To avoid this situation, there is a patch (see [utils/nm-patch.json](utils/nm-patch.json)) that should be appliend to the Ignition files to increase the timeout of this service and avoid the situation.
-
-- Using the `PXE APPEND` to disable IPv6 using the `ipv6.disable` does not work. This flag is ignored at this time.
-- When customizing Ignition files to write custom files or configurations in the Node, the permissions must be specified in ***OCTAL*** mode (i.e. 384), NOT in DECIMAL (i.e. 600).
-- If there is no valid reverse DNS resolution during the installation, the Masters (and all the Nodes) will register as `localhost.localdomain` into the Kubernetes etcd. When this happens it will fail to identify the existence of multiple masters and the installation process will fail.
 
 # Preparing the Bastion Node
 
@@ -212,16 +200,14 @@ NOTE: Update `/var/lib/tftpboot/pxelinux.cfg/default` to match environment.
   
     ```
     images/
-    ├── openshift-client-linux-4.1.4.tar.gz
-    ├── openshift-install-linux-4.1.4.tar.gz
-    ├── rhcos-4.1.0-x86_64-installer-initramfs.img
-    ├── rhcos-4.1.0-x86_64-installer.iso
-    ├── rhcos-4.1.0-x86_64-installer-kernel
-    ├── rhcos-4.1.0-x86_64-metal-bios.raw.gz
-    └── rhcos-4.1.0-x86_64-metal-uefi.raw.gz
+    ├── openshift-client-linux-4.2.0-0.nightly-2019-10-01-210901.tar.gz
+    ├── openshift-install-linux-4.2.0-0.nightly-2019-10-01-210901.tar.gz
+    ├── rhcos-42.80.20190828.2-installer-initramfs.img
+    ├── rhcos-42.80.20190828.2-installer-kernel
+    └── rhcos-42.80.20190828.2-metal-bios.raw.gz
     ```
 
-3. Open the `openshift-client-linux-4.1.0.tar.gz` and the `openshift-install-linux-4.1.0.tar.gz` into your current directory. This will provide the `openshift-installer`, `oc` and `kubectl` binaries.
+3. Open the `openshift-client-linux-<release>.tar.gz` and the `openshift-install-linux-<release>.tar.gz` into your current directory. This will provide the `openshift-installer`, `oc` and `kubectl` binaries.
    
 4. Copy RHCOS PXE images and RHCOS images into the corresponding folders
    
@@ -333,32 +319,34 @@ firewall-cmd --zone=internal  --list-ports
 # export KUBECONFIG=./ocp4poc/auth/kubeconfig
 
 # oc get co
-NAME                                 VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE
-authentication                       4.1.0     True        False         False      9m39s
-cloud-credential                     4.1.0     True        False         False      40m
-cluster-autoscaler                   4.1.0     True        False         False      40m
-console                              4.1.0     True        False         False      12m
-dns                                  4.1.0     True        False         False      40m
-image-registry                       4.1.0     True        False         False      14m
-ingress                              4.1.0     True        False         False      14m
-kube-apiserver                       4.1.0     True        False         False      39m
-kube-controller-manager              4.1.0     True        False         False      38m
-kube-scheduler                       4.1.0     True        False         False      38m
-machine-api                          4.1.0     True        False         False      40m
-machine-config                       4.1.0     True        False         False      39m
-marketplace                          4.1.0     True        False         False      36m
-monitoring                           4.1.0     True        False         False      13m
-network                              4.1.0     True        False         False      39m
-node-tuning                          4.1.0     True        False         False      36m
-openshift-apiserver                  4.1.0     True        False         False      37m
-openshift-controller-manager         4.1.0     True        False         False      39m
-openshift-samples                    4.1.0     True        False         False      30m
-operator-lifecycle-manager           4.1.0     True        False         False      40m
-operator-lifecycle-manager-catalog   4.1.0     True        False         False      40m
-service-ca                           4.1.0     True        False         False      40m
-service-catalog-apiserver            4.1.0     True        False         False      36m
-service-catalog-controller-manager   4.1.0     True        False         False      36m
-storage                              4.1.0     True        False         False      36m
+NAME                                       VERSION                             AVAILABLE   PROGRESSING   DEGRADED   SINCE
+authentication                             4.2.0-0.nightly-2019-10-01-210901   True        False         False      12s
+cloud-credential                           4.2.0-0.nightly-2019-10-01-210901   True        False         False      22m
+cluster-autoscaler                         4.2.0-0.nightly-2019-10-01-210901   True        False         False      10m
+console                                    4.2.0-0.nightly-2019-10-01-210901   True        False         False      2m27s
+dns                                        4.2.0-0.nightly-2019-10-01-210901   True        False         False      21m
+image-registry                             4.2.0-0.nightly-2019-10-01-210901   True        False         False      3m39s
+ingress                                    4.2.0-0.nightly-2019-10-01-210901   True        False         False      12m
+insights                                   4.2.0-0.nightly-2019-10-01-210901   True        False         False      22m
+kube-apiserver                             4.2.0-0.nightly-2019-10-01-210901   True        True          False      19m
+kube-controller-manager                    4.2.0-0.nightly-2019-10-01-210901   True        False         False      19m
+kube-scheduler                             4.2.0-0.nightly-2019-10-01-210901   True        False         False      19m
+machine-api                                4.2.0-0.nightly-2019-10-01-210901   True        False         False      22m
+machine-config                             4.2.0-0.nightly-2019-10-01-210901   True        False         False      21m
+marketplace                                4.2.0-0.nightly-2019-10-01-210901   True        False         False      14m
+monitoring                                 4.2.0-0.nightly-2019-10-01-210901   True        False         False      4m34s
+network                                    4.2.0-0.nightly-2019-10-01-210901   True        False         False      20m
+node-tuning                                4.2.0-0.nightly-2019-10-01-210901   True        False         False      17m
+openshift-apiserver                        4.2.0-0.nightly-2019-10-01-210901   True        False         False      4m19s
+openshift-controller-manager               4.2.0-0.nightly-2019-10-01-210901   True        False         False      19m
+openshift-samples                          4.2.0-0.nightly-2019-10-01-210901   True        False         False      8m5s
+operator-lifecycle-manager                 4.2.0-0.nightly-2019-10-01-210901   True        False         False      21m
+operator-lifecycle-manager-catalog         4.2.0-0.nightly-2019-10-01-210901   True        False         False      21m
+operator-lifecycle-manager-packageserver   4.2.0-0.nightly-2019-10-01-210901   True        False         False      18m
+service-ca                                 4.2.0-0.nightly-2019-10-01-210901   True        False         False      22m
+service-catalog-apiserver                  4.2.0-0.nightly-2019-10-01-210901   True        False         False      18m
+service-catalog-controller-manager         4.2.0-0.nightly-2019-10-01-210901   True        False         False      18m
+storage                                    4.2.0-0.nightly-2019-10-01-210901   True        False         False      14m
 ```
 
 
