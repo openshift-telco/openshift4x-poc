@@ -8,6 +8,7 @@ OCP_RELEASE=4.2.0-0.nightly-2019-10-01-210901
 RHCOS_BUILD=4.2.0-0.nightly-2019-08-28-152644
 RHCOS_IMAGE_BASE=42.80.20190828.2
 
+# ancillary services
 WEBROOT=/opt/nginx/html
 TFTPROOT=/var/lib/tftpboot
 POCDIR=ocp4poc
@@ -24,6 +25,8 @@ AIRGAP_REPO='ocp4/openshift4'
 UPSTREAM_REPO='openshift-release-dev'   ## or 'openshift'
 RELEASE_NAME='ocp-release'
 AIRGAP_SECRET_JSON='pull-secret-2.json'
+
+# THIS SHOULD NOT BE NEEDED FOR OCP 4.2+
 #export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 
 ##############################################################
@@ -73,7 +76,7 @@ mirror () {
    ./oc adm release mirror -a ${AIRGAP_SECRET_JSON} --insecure=true --from=quay.io/${UPSTREAM_REPO}/${RELEASE_NAME}:${OCP_RELEASE} \
    --to-release-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE} --to=${AIRGAP_REG}/${AIRGAP_REPO}
 
-# 4.1
+# Unsupported procedure for OCP 4.1
 #     echo "WARNING: This is an unsupported procedure"
 #    ./oc adm release new -a ${AIRGAP_SECRET_JSON} --insecure --from-release=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
 #    --mirror=${AIRGAP_REG}/${AIRGAP_REPO} --to-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
@@ -106,15 +109,13 @@ customizations () {
     echo "Generate manifests to apply customizations"
     ./openshift-install create manifests --dir=${POCDIR}
   
-    # this workaround also need to be applied to the initial
-    # master and worker ignition files after they are generated
+    # workaround be applied to the initial ignition files
     cp -r ./customizations/*.yaml ./${POCDIR}/openshift/
 
     echo "Generating new Ignition Configs"
     ./openshift-install create ignition-configs --dir=${POCDIR}
 
     # echo "Create backup of Ignition files to apply additional customizations"
-    # mv ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-bkup
     # mv ${POCDIR}/master.ign    ${POCDIR}/master.ign-bkup
     # mv ${POCDIR}/worker.ign    ${POCDIR}/worker.ign-bkup
 
@@ -123,16 +124,30 @@ customizations () {
     # jq -s '.[0] * .[1]' ${POCDIR}/worker.ign-bkup ./utils/nm-patch.json > ${POCDIR}/worker.ign
 
     # echo "Updating Bootstrap Ignition file to apply NetworkManager patch"
-    #./utils/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign-patch
+    # mv ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-bkup
+    #./utils/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign
 
-    # Check if there are additional customizations for bootstrap.ign
-    # if [[ -d ./customizations/bootstrap ]]; then
-    #     echo "Found bootstrap customization directory. Encoding additional configuration files into bootstrap.ign"
-    #     ./utils/filetranspile -i ./${POCDIR}/bootstrap.ign-patch -f ./customizations/bootstrap  > ./${POCDIR}/bootstrap.ign
-    # else
-    #     echo "No additional files to be injected into bootstrap.ign"
-    #     cp ./${POCDIR}/bootstrap.ign-patch ./${POCDIR}/bootstrap.ign
-    # fi
+    # Check if there are additional configuration customizations for bootstrap.ign
+    if [[ -d ./customizations/bootstrap ]]; then
+        echo "Found bootstrap customization directory. Encoding additional configuration files into bootstrap.ign"
+        mv ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-bkup
+        ./utils/filetranspile -i ./${POCDIR}/bootstrap.ign-bkup -f ./customizations/bootstrap  > ./${POCDIR}/bootstrap.ign
+    fi
+
+    # Check if there are additional configuration customizations for master.ign
+    if [[ -d ./customizations/master ]]; then
+        echo "Found master customization directory. Encoding additional configuration files into master.ign"
+        mv ${POCDIR}/master.ign ${POCDIR}/master.ign-bkup
+        ./utils/filetranspile -i ./${POCDIR}/master.ign-bkup -f ./customizations/master  > ./${POCDIR}/master.ign
+    fi
+
+    # Check if there are additional configuration customizations for worker.ign
+    if [[ -d ./customizations/worker ]]; then
+        echo "Found worker customization directory. Encoding additional configuration files into worker.ign"
+        mv ${POCDIR}/worker.ign ${POCDIR}/worker.ign-bkup
+        ./utils/filetranspile -i ./${POCDIR}/worker.ign-bkup -f ./customizations/worker  > ./${POCDIR}/worker.ign
+    fi
+  
     echo "Customizations done."
 }
 
