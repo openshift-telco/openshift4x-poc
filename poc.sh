@@ -83,7 +83,7 @@ mirror () {
 
     #echo "Retrieve `openshift-install` from local container repository"
     # NOTE: This `openshift-install` binary does not requires the env variable
-    #./oc adm -a ${AIRGAP_SECRET_JSON} release extract --command='openshift-install' ${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
+    ./oc adm --insecure=true -a ${AIRGAP_SECRET_JSON} release extract --command='openshift-install' ${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 }
 
 clean() {
