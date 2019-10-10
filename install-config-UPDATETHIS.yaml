@@ -30,6 +30,7 @@ pullSecret: '{"auths": ...}'
 #   -----BEGIN CERTIFICATE-----
 #   ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
 #   -----END CERTIFICATE-----
+# Record the imageContentSources section from the output of the ./poc mirror command. 
 # imageContentSources: 
 # - mirrors:
 #   - <bastion_host_name>:5000/<repo_name>/release
