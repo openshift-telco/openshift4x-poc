@@ -1,12 +1,11 @@
 #!/bin/bash
-
 ##############################################################
 # UPDATE TO MATCH YOUR ENVIRONMENT
 ##############################################################
 
-OCP_RELEASE=4.2.0-0.nightly-2019-10-01-210901
-RHCOS_BUILD=4.2.0-0.nightly-2019-08-28-152644
-RHCOS_IMAGE_BASE=42.80.20190828.2
+OCP_RELEASE=4.2
+OCP_SUBRELEASE=4.2.0
+RHCOS_IMAGE_BASE=4.2.0-x86_64
 
 # ancillary services
 WEBROOT=/opt/nginx/html
@@ -22,7 +21,7 @@ POCDIR=ocp4poc
 AIRGAP_REG='registry.ocp4poc.example.com:5000'
 AIRGAP_REPO='ocp4/openshift4'
 
-UPSTREAM_REPO='openshift-release-dev'   ## or 'openshift'
+UPSTREAM_REPO='openshift-release-dev'
 RELEASE_NAME='ocp-release'
 AIRGAP_SECRET_JSON='pull-secret-2.json'
 
@@ -40,18 +39,21 @@ usage() {
 
 get_images() {
     mkdir images ; cd images 
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-installer-initramfs.img
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-installer-kernel
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-metal-bios.raw.gz
+    
+    # https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.2/4.2.0/
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCP_RELEASE}/${OCP_SUBRELEASE}/rhcos-${RHCOS_IMAGE_BASE}-installer-initramfs.img
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCP_RELEASE}/${OCP_SUBRELEASE}/rhcos-${RHCOS_IMAGE_BASE}-installer-kernel
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCP_RELEASE}/${OCP_SUBRELEASE}/rhcos-${RHCOS_IMAGE_BASE}-metal-bios.raw.gz
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCP_RELEASE}/${OCP_SUBRELEASE}/rhcos-${RHCOS_IMAGE_BASE}-metal-uefi.raw.gz
 
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-metal-uefi.raw.gz
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-installer.iso
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-openstack.qcow2
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-qemu.qcow2
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/pre-release/${RHCOS_BUILD}/rhcos-${RHCOS_IMAGE_BASE}-vmware.ova
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCP_RELEASE}/${OCP_SUBRELEASE}/rhcos-${RHCOS_IMAGE_BASE}-installer.iso
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCP_RELEASE}/${OCP_SUBRELEASE}/rhcos-${RHCOS_IMAGE_BASE}-openstack.qcow2
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCP_RELEASE}/${OCP_SUBRELEASE}/rhcos-${RHCOS_IMAGE_BASE}-qemu.qcow2
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${OCP_RELEASE}/${OCP_SUBRELEASE}/rhcos-${RHCOS_IMAGE_BASE}-vmware.ova
 
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/${OCP_RELEASE}/openshift-client-linux-${OCP_RELEASE}.tar.gz 
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/${OCP_RELEASE}/openshift-install-linux-${OCP_RELEASE}.tar.gz
+    # https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.2.0/
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_SUBRELEASE}/openshift-client-linux-${OCP_SUBRELEASE}.tar.gz 
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_SUBRELEASE}/openshift-install-linux-${OCP_SUBRELEASE}.tar.gz
 
     cd ..
     tree images
@@ -81,8 +83,8 @@ mirror () {
 #    ./oc adm release new -a ${AIRGAP_SECRET_JSON} --insecure --from-release=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
 #    --mirror=${AIRGAP_REG}/${AIRGAP_REPO} --to-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 
-    #echo "Retrieve `openshift-install` from local container repository"
-    # NOTE: This `openshift-install` binary does not requires the env variable
+    # NOTE: When using the local `openshift-install` binary (it should not require the image override env variable)
+    echo "Retrieve `openshift-install` from local container repository"
     ./oc adm --insecure=true -a ${AIRGAP_SECRET_JSON} release extract --command='openshift-install' ${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
 }
 
@@ -149,6 +151,7 @@ customizations () {
     fi
   
     echo "Customizations done."
+    echo "export KUBECONFIG=`pwd`/${POCDIR}/auth/kubeconfig" > ./set-env
 }
 
 prep_installer () {
@@ -161,7 +164,7 @@ prep_images () {
     echo "Copying RHCOS OS Images to ${WEBROOT}"
     mkdir ${WEBROOT}/metal/
     cp -f ./images/rhcos-${RHCOS_IMAGE_BASE}-metal-bios.raw.gz ${WEBROOT}/metal/
-    #cp -f ./images/rhcos-${RHCOS_IMAGE_BASE}-metal-uefi.raw.gz ${WEBROOT}/metal/
+    cp -f ./images/rhcos-${RHCOS_IMAGE_BASE}-metal-uefi.raw.gz ${WEBROOT}/metal/
     tree ${WEBROOT}/metal/
 
     echo "Copying RHCOS PXE Boot Images to ${TFTPROOT}"
@@ -193,8 +196,8 @@ approve () {
     export KUBECONFIG=${POCDIR}/auth/kubeconfig
     ./oc get csr
     ./oc get csr -ojson | jq -r '.items[] | select(.status == {} ) | .metadata.name' | xargs ./oc adm certificate approve
-    sleep 3
-    ./oc get csr 
+    #sleep 3
+    #./oc get csr 
 }
 
 # Capture First param
