@@ -75,17 +75,17 @@ mirror () {
     echo "Mirroring from Quay into Local Registry"
     # 4.2
     # Note: This option keep old metadata references to quay.io
-   ./oc adm release mirror -a ${AIRGAP_SECRET_JSON} --insecure=true --from=quay.io/${UPSTREAM_REPO}/${RELEASE_NAME}:${OCP_RELEASE} \
+   ./oc adm release mirror -a ${AIRGAP_SECRET_JSON} --insecure=true --from=quay.io/${UPSTREAM_REPO}/${RELEASE_NAME}:${OCP_SUBRELEASE} \
    --to-release-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE} --to=${AIRGAP_REG}/${AIRGAP_REPO}
 
 # Unsupported procedure for OCP 4.1
 #     echo "WARNING: This is an unsupported procedure"
-#    ./oc adm release new -a ${AIRGAP_SECRET_JSON} --insecure --from-release=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_RELEASE} \
-#    --mirror=${AIRGAP_REG}/${AIRGAP_REPO} --to-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
+#    ./oc adm release new -a ${AIRGAP_SECRET_JSON} --insecure --from-release=quay.io/${UPSTREAM_REPO}/ocp-release:${OCP_SUBRELEASE} \
+#    --mirror=${AIRGAP_REG}/${AIRGAP_REPO} --to-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_SUBRELEASE}
 
     # NOTE: When using the local `openshift-install` binary (it should not require the image override env variable)
     echo "Retrieve `openshift-install` from local container repository"
-    ./oc adm --insecure=true -a ${AIRGAP_SECRET_JSON} release extract --command='openshift-install' ${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
+    ./oc adm --insecure=true -a ${AIRGAP_SECRET_JSON} release extract --command='openshift-install' ${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_SUBRELEASE}
 }
 
 clean() {
@@ -156,8 +156,8 @@ customizations () {
 
 prep_installer () {
     echo "Uncompressing installer and client binaries"
-    tar -xzf ./images/openshift-client-linux-${OCP_RELEASE}.tar.gz
-    tar -xaf ./images/openshift-install-linux-${OCP_RELEASE}.tar.gz
+    tar -xzf ./images/openshift-client-linux-${OCP_SUBRELEASE}.tar.gz
+    tar -xaf ./images/openshift-install-linux-${OCP_SUBRELEASE}.tar.gz
 }
 
 prep_images () {
