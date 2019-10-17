@@ -1,4 +1,4 @@
-# OpenShift 4.2 (pre-release) UPI bare-metal (using PXE boot)
+# OpenShift 4.2 UPI bare-metal (using PXE boot)
 
 This is a reference documentation for POCs of OpenShift 4.2 UPI bare-metal deployment using PXE Boot.
 
@@ -66,9 +66,9 @@ $ ./oc adm certificate approve <crt-name>
 
 Modify the following environment variables of `./poc.sh` script to match your environment.
 ```
-OCP_RELEASE=4.2.0-0.nightly-2019-10-01-210901
-RHCOS_BUILD=4.2.0-0.nightly-2019-08-28-152644
-RHCOS_IMAGE_BASE=42.80.20190828.2
+OCP_RELEASE=4.2
+OCP_SUBRELEASE=4.2.0
+RHCOS_IMAGE_BASE=4.2.0-x86_64
 
 WEBROOT=/opt/nginx/html
 TFTPROOT=/var/lib/tftpboot
@@ -316,37 +316,37 @@ firewall-cmd --zone=internal  --list-ports
 - A successful installation will show all the cluster operators available. The `image-registry` will not become active until a cluster administrator configure storage for the registry.
 
 ```
-# export KUBECONFIG=./ocp4poc/auth/kubeconfig
+# export KUBECONFIG=`pwd`/ocp4poc/auth/kubeconfig
 
 # oc get co
-NAME                                       VERSION                             AVAILABLE   PROGRESSING   DEGRADED   SINCE
-authentication                             4.2.0-0.nightly-2019-10-01-210901   True        False         False      12s
-cloud-credential                           4.2.0-0.nightly-2019-10-01-210901   True        False         False      22m
-cluster-autoscaler                         4.2.0-0.nightly-2019-10-01-210901   True        False         False      10m
-console                                    4.2.0-0.nightly-2019-10-01-210901   True        False         False      2m27s
-dns                                        4.2.0-0.nightly-2019-10-01-210901   True        False         False      21m
-image-registry                             4.2.0-0.nightly-2019-10-01-210901   True        False         False      3m39s
-ingress                                    4.2.0-0.nightly-2019-10-01-210901   True        False         False      12m
-insights                                   4.2.0-0.nightly-2019-10-01-210901   True        False         False      22m
-kube-apiserver                             4.2.0-0.nightly-2019-10-01-210901   True        True          False      19m
-kube-controller-manager                    4.2.0-0.nightly-2019-10-01-210901   True        False         False      19m
-kube-scheduler                             4.2.0-0.nightly-2019-10-01-210901   True        False         False      19m
-machine-api                                4.2.0-0.nightly-2019-10-01-210901   True        False         False      22m
-machine-config                             4.2.0-0.nightly-2019-10-01-210901   True        False         False      21m
-marketplace                                4.2.0-0.nightly-2019-10-01-210901   True        False         False      14m
-monitoring                                 4.2.0-0.nightly-2019-10-01-210901   True        False         False      4m34s
-network                                    4.2.0-0.nightly-2019-10-01-210901   True        False         False      20m
-node-tuning                                4.2.0-0.nightly-2019-10-01-210901   True        False         False      17m
-openshift-apiserver                        4.2.0-0.nightly-2019-10-01-210901   True        False         False      4m19s
-openshift-controller-manager               4.2.0-0.nightly-2019-10-01-210901   True        False         False      19m
-openshift-samples                          4.2.0-0.nightly-2019-10-01-210901   True        False         False      8m5s
-operator-lifecycle-manager                 4.2.0-0.nightly-2019-10-01-210901   True        False         False      21m
-operator-lifecycle-manager-catalog         4.2.0-0.nightly-2019-10-01-210901   True        False         False      21m
-operator-lifecycle-manager-packageserver   4.2.0-0.nightly-2019-10-01-210901   True        False         False      18m
-service-ca                                 4.2.0-0.nightly-2019-10-01-210901   True        False         False      22m
-service-catalog-apiserver                  4.2.0-0.nightly-2019-10-01-210901   True        False         False      18m
-service-catalog-controller-manager         4.2.0-0.nightly-2019-10-01-210901   True        False         False      18m
-storage                                    4.2.0-0.nightly-2019-10-01-210901   True        False         False      14m
+NAME                                       VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE
+authentication                             4.2.0     True        False         False      9m43s
+cloud-credential                           4.2.0     True        False         False      24m
+cluster-autoscaler                         4.2.0     True        False         False      16m
+console                                    4.2.0     True        False         False      10m
+dns                                        4.2.0     True        False         False      23m
+image-registry                             4.2.0     True        False         False      4m47s
+ingress                                    4.2.0     True        False         False      16m
+insights                                   4.2.0     True        False         False      24m
+kube-apiserver                             4.2.0     True        False         False      21m
+kube-controller-manager                    4.2.0     True        False         False      21m
+kube-scheduler                             4.2.0     True        False         False      20m
+machine-api                                4.2.0     True        False         False      24m
+machine-config                             4.2.0     True        False         False      22m
+marketplace                                4.2.0     True        False         False      17m
+monitoring                                 4.2.0     True        False         False      12m
+network                                    4.2.0     True        False         False      21m
+node-tuning                                4.2.0     True        False         False      19m
+openshift-apiserver                        4.2.0     True        False         False      20m
+openshift-controller-manager               4.2.0     True        False         False      21m
+openshift-samples                          4.2.0     True        False         False      9m34s
+operator-lifecycle-manager                 4.2.0     True        False         False      22m
+operator-lifecycle-manager-catalog         4.2.0     True        False         False      22m
+operator-lifecycle-manager-packageserver   4.2.0     True        False         False      21m
+service-ca                                 4.2.0     True        False         False      24m
+service-catalog-apiserver                  4.2.0     True        False         False      20m
+service-catalog-controller-manager         4.2.0     True        False         False      19m
+storage                                    4.2.0     True        False         False      18m
 ```
 
 
