@@ -184,7 +184,7 @@ NOTE: Update `/etc/dnsmasq.d/dnsmasq-pxe.conf` to match environment
 
 ## Setup PXE Boot Configurations
 
-1. Create PXE Boot menu to be used by the environment [/var/lib/tftpboot/pxelinux.cfg/default](utils/pxelinux.cfg-default-bios)
+1. Create PXE Boot menu to be used by the environment [/var/lib/tftpboot/pxelinux.cfg/default](utils/PXE/pxelinux.cfg-default-bios)
 
 ```
 mkdir -pv /var/lib/tftpboot/pxelinux.cfg/
