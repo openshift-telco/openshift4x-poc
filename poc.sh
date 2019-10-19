@@ -76,7 +76,7 @@ mirror () {
     # 4.2
     # Note: This option keep old metadata references to quay.io
    ./oc adm release mirror -a ${AIRGAP_SECRET_JSON} --insecure=true --from=quay.io/${UPSTREAM_REPO}/${RELEASE_NAME}:${OCP_SUBRELEASE} \
-   --to-release-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE} --to=${AIRGAP_REG}/${AIRGAP_REPO}
+   --to-release-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_SUBRELEASE} --to=${AIRGAP_REG}/${AIRGAP_REPO}
 
 # Unsupported procedure for OCP 4.1
 #     echo "WARNING: This is an unsupported procedure"
