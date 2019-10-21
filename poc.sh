@@ -25,8 +25,8 @@ UPSTREAM_REPO='openshift-release-dev'
 RELEASE_NAME='ocp-release'
 AIRGAP_SECRET_JSON='pull-secret-2.json'
 
-# THIS SHOULD NOT BE NEEDED FOR OCP 4.2+
-#export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_RELEASE}
+# NOT NEEDED FOR IF INSTALLER IS RETRIEVED FROM LOCAL REPO
+#export OPENSHIFT_INSTALL_RELEASE_IMAGE_OVERRIDE=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_SUBRELEASE}
 
 ##############################################################
 # DO NOT MODIFY AFTER THIS LINE
@@ -84,7 +84,7 @@ mirror () {
 #    --mirror=${AIRGAP_REG}/${AIRGAP_REPO} --to-image=${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_SUBRELEASE}
 
     # NOTE: When using the local `openshift-install` binary (it should not require the image override env variable)
-    echo "Retrieve `openshift-install` from local container repository"
+    echo "Retrieving 'openshift-install' from local container repository"
     ./oc adm --insecure=true -a ${AIRGAP_SECRET_JSON} release extract --command='openshift-install' ${AIRGAP_REG}/${AIRGAP_REPO}:${OCP_SUBRELEASE}
 }
 
