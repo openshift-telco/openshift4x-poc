@@ -4,7 +4,7 @@
 ##############################################################
 
 OCP_RELEASE=4.2
-OCP_SUBRELEASE=4.2.0
+OCP_SUBRELEASE=4.2.1
 RHCOS_IMAGE_BASE=4.2.0-x86_64
 
 # ancillary services
