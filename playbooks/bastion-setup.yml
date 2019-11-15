@@ -1,0 +1,22 @@
+## Authors: 
+##   Christoph Doerbeck
+##
+## Summary:
+##   This playbook intends to do the heavy lifting of configuring the bastion-host based on the paremeters defined in the
+##   ansible inventory (config).
+##
+##   It will install missing packages, pull (wget) openshift installer, rhcos, etc...
+##
+## Playbook Assumptions:
+##     #1 you are executing this on the bastion-host
+##     #2 you have configured and copied ssh-keys to itself.  Meaning, ssh root@localhost works without a password
+##     #3 you have completed adjustments to ../configs/ocp4poc-default
+##
+
+---
+- hosts: POC_BASTION
+  tasks:
+  
+  - name: "BASTION-SETUP: install additional packages"
+      yum: name=ansible,git,tree,wget state=installed
+      
