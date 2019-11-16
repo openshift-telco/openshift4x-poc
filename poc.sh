@@ -3,11 +3,13 @@
 # UPDATE TO MATCH YOUR ENVIRONMENT
 ##############################################################
 
-OCP_RELEASE=4.2
+OCP_RELEASE_PATH=ocp          # valid options are "ocp" or "ocp-dev-preview"
+# Must match directory at: https://mirror.openshift.com/pub/openshift-v4/clients/${OCP_RELEASE_PATH}
 OCP_SUBRELEASE=4.2.7
 
-RHCOS_RELEASE=4.2
-RHCOS_IMAGE_BASE=4.2.0-x86_64
+# Must match directory at https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/
+RHCOS_RELEASE=4.2               # "4.2" for latest stable,  "pre-release" for nightly
+RHCOS_IMAGE_BASE=4.2.0-x86_64   # "4.2.0-x86_64" for latest stable, "42.80.20191002.0" for nightly 	
 
 # ancillary services
 WEBROOT=/opt/nginx/html
@@ -54,8 +56,8 @@ get_images() {
     #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-${RHCOS_IMAGE_BASE}-vmware.ova
 
     # https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.2.0/
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_SUBRELEASE}/openshift-client-linux-${OCP_SUBRELEASE}.tar.gz 
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OCP_SUBRELEASE}/openshift-install-linux-${OCP_SUBRELEASE}.tar.gz
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/${OCP_RELEASE_PATH}/${OCP_SUBRELEASE}/openshift-client-linux-${OCP_SUBRELEASE}.tar.gz 
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/${OCP_RELEASE_PATH}/${OCP_SUBRELEASE}/openshift-install-linux-${OCP_SUBRELEASE}.tar.gz
 
     cd ..
     tree images
@@ -63,10 +65,7 @@ get_images() {
 
 install_tools() {
     echo -e "NOTE: Tools used by $0 are not installed by this script. Manually install one of the following options:"
-    echo -e "\nWith NGINX LB:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma"
-
-    echo -e "\t Note: May need EPEL repo: rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
-    echo -e "\nWith HAProxy LB:\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma\n"
+    echo -e "\n\t yum -y install tftp-server dnsmasq syslinux-tftpboot tree python36 jq oniguruma"
 
     echo "Downloading `filestranspiler`"
     curl -o ./utils/filetranspile https://raw.githubusercontent.com/ashcrow/filetranspiler/master/filetranspile
