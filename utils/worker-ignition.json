@@ -1,0 +1,17 @@
+{
+    "ignition": {
+        "version": "2.2.0",
+        "config": {
+            "append": [
+                {
+                    "source": "http://bastion.example.com:8000/worker.ign",
+                    "verification": {}
+                }
+            ]
+        }
+    },
+    "networkd": {},
+    "passwd": {},
+    "storage": {},
+    "systemd": {}
+}

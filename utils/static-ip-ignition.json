@@ -4,7 +4,7 @@
         "config": {
             "append": [
                 {
-                    "source": "https://bastion.example.com:8000/worker.ign",
+                    "source": "http://bastion.example.com:8000/worker.ign",
                     "verification": {}
                 }
             ]

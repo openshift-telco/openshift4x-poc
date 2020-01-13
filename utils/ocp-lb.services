@@ -1,0 +1,29 @@
+# /etc/systemd/system/ocp-lb.service
+#
+# Copy (chmod 664) to /etc/systemd/system/ocp-lb.service
+#
+# systemctl daemon-reload
+# systemctl start ocp-lb
+# systemctl status ocp-lb
+# systemctl enable ocp-lb
+#
+
+[Unit]
+Description=OpenShift External Load Balancer
+After=network.target syslog.target
+
+[Service]
+Type=simple
+TimeoutStartSec=5m
+ExecStartPre=-/usr/bin/podman rm "ocp-lb"
+
+ExecStart=/usr/bin/podman run --name ocp-lb --net host -v /opt/haproxy:/usr/local/etc/haproxy:ro haproxy
+
+ExecReload=-/usr/bin/podman stop "ocp-lb"
+ExecReload=-/usr/bin/podman rm "ocp-lb"
+ExecStop=-/usr/bin/podman stop "ocp-lb"
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

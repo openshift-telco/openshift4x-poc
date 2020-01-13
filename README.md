@@ -102,7 +102,7 @@ Reference official [documentation](https://docs.openshift.com/container-platform
 
 Reference Load Balancer configurations available in the `utils` folder (use one of the two):
   - Load balancer using [HAProxy](utils/haproxy.cfg) at system level (installed from RPM)
-  - Load balancer using HAProxy as [System Container](utils/poc-lb.service) managed by systemd
+  - Load balancer using HAProxy as [System Container](utils/ocp-lb.service) managed by systemd
 
 NOTE: If seeing port bind errors starting the load balancer check SELinux settings:
 ```
@@ -132,15 +132,15 @@ semanage port -m -t http_port_t -p tcp 8000
     mkdir -pv /opt/haproxy
 
     cp ./utils/haproxy.cfg /opt/haproxy
-    cp ./utils/poc-lb.service /etc/systemd/system/poc-lb.service
+    cp ./utils/ocp-lb.service /etc/systemd/system/ocp-lb.service
 
     podman pull haproxy
 
     systemctl daemon-reload
 
-    systemctl start poc-lb
-    systemctl status poc-lb
-    systemctl enable poc-lb
+    systemctl start ocp-lb
+    systemctl status ocp-lb
+    systemctl enable ocp-lb
     ```
      
     Note: To accept asymmetrically routed packets set rp_filter = 2 (Credits: Thanks to Jay Cromer)
@@ -156,15 +156,15 @@ semanage port -m -t http_port_t -p tcp 8000
     ```
     mkdir -pv /opt/nginx/html/metal
 
-    cp ./utils/poc-pxe-http.service /etc/systemd/system/poc-pxe-http.service
+    cp ./utils/ocp-http.service /etc/systemd/system/ocp-http.service
 
     podman pull nginx
 
     systemctl daemon-reload
     
-    systemctl start poc-pxe-http
-    systemctl status poc-pxe-http
-    systemctl enable poc-pxe-http
+    systemctl start ocp-http
+    systemctl status ocp-http
+    systemctl enable ocp-http
     ```
 
 ## Setting up DNSmasq for PXE Boot

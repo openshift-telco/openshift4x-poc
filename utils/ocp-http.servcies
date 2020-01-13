@@ -1,0 +1,28 @@
+#
+# Copy (chmod 664) to /etc/systemd/system/ocp-http.service
+#
+# systemctl daemon-reload
+# systemctl start ocp-http
+# systemctl status ocp-http
+# systemctl enable ocp-http
+#
+
+[Unit]
+Description=OpenShift HTTP for Ignition files and PXE Configs
+After=network.target syslog.target
+
+[Service]
+Type=simple
+TimeoutStartSec=5m
+ExecStartPre=-/usr/bin/podman rm "ocp-http"
+
+ExecStart=/usr/bin/podman run --name ocp-http -p 8000:80 -v /opt/nginx/html:/usr/share/nginx/html:ro nginx
+
+ExecReload=-/usr/bin/podman stop "ocp-http"
+ExecReload=-/usr/bin/podman rm "ocp-http"
+ExecStop=-/usr/bin/podman stop "ocp-http"
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
