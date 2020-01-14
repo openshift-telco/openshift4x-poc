@@ -1,0 +1,47 @@
+{
+    "ignition": {
+        "version": "2.2.0",
+        "config": {
+            "append": [
+                {
+                    "source": "http://bastion.example.com:8000/worker.ign",
+                    "verification": {}
+                }
+            ]
+        }
+    },
+    "networkd": {},
+    "passwd": {},
+    "storage": {
+        "files": [
+            {
+                "filesystem": "root",
+                "path": "/etc/NetworkManager/conf.d/10-static-dns.conf",
+                "contents": {
+                    "source": "data:;base64,IyAvZXRjL05ldHdvcmtNYW5hZ2VyL2NvbmYuZC8xMC1zdGF0aWMtZG5zLmNvbmYgClttYWluXQpkbnM9bm9uZQo=",
+                    "verification": {}
+                },
+                "mode": 420
+            },
+            {
+                "filesystem": "root",
+                "path": "/etc/resolv.conf",
+                "contents": {
+                    "source": "data:;base64,<CONTENT_HERE>",
+                    "verification": {}
+                },
+                "mode": 420
+            },
+            {
+                "filesystem": "root",
+                "path": "/etc/hostname",
+                "contents": {
+                    "source": "data:;base64,<CONTENT_HERE>",
+                    "verification": {}
+                },
+                "mode": 420
+            }
+        ]
+    },
+    "systemd": {}
+}
