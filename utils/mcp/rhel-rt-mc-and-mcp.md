@@ -1,5 +1,12 @@
 #  RHEL-RT MachineConfig (MC) and MachineConfigPool (MCP)
 
+```
+################################################
+NO DOT FOLLOW THIS PROCEDURE FOR GENERAL MCP's.
+FOR GENERAL MCP's DEFINITION USE DERIVED MC's.
+################################################
+```
+
 Create a `worker-rt` MachineConfigPool with the corresponding `MachineConfig`
 
 ## Step 1
