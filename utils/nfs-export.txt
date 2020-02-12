@@ -1,0 +1,5 @@
+# Sample NFS
+/opt/imageregistry     *(rw,sync,no_wdaly,no_root_squash,insecure)
+/opt/clusterlogging-0  *(rw,sync,no_wdaly,no_root_squash,insecure)
+/opt/clusterlogging-1  *(rw,sync,no_wdaly,no_root_squash,insecure)
+/opt/clusterlogging-2  *(rw,sync,no_wdaly,no_root_squash,insecure)
