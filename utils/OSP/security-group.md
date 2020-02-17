@@ -7,6 +7,8 @@ export OSP_TENANT_NET=192.168.50.0/24
 
 Reference SecurityGroup for Bastion Node:
 ```
+openstack security group create bastion-sg
+
 openstack security group rule create --ingress --dst-port 22    --protocol tcp --remote-ip ${OSP_EXT_NET}    bastion-sg
 
 openstack security group rule create --ingress --dst-port 6443  --protocol tcp --remote-ip ${OSP_TENANT_NET} bastion-sg

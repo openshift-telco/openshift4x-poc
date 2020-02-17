@@ -11,3 +11,7 @@ spec:
     path: /opt/nfs/image-registry  
     server: 192.168.1.1
   persistentVolumeReclaimPolicy: Retain 
+
+# NOTE: If using RHEL NFS Server with SELinux
+# chown nobody.nobody /opt/nfs/imageregistry
+# chcon -Rt nfs_t /opt/nfs/imageregistry

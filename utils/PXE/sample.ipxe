@@ -1,0 +1,26 @@
+:local
+exit
+
+:shell
+echo Type 'exist' to get back to the menu
+set menu-timeout 0
+set submenu-timeout 0
+goto start
+
+:bootstrap
+set base-url http://192.168.1.1:8000
+kernel ${base-url}/install/rhcos-installer-kernel initrd=rhcos-installer-initramfs.img ip=dhcp rd.neednet=1 coreos.inst=yes coreos.inst.install_dev=sda coreos.first_boot=1 coreos.inst.image_url=http://192.168.1.1:8000/install/rhcos-metal.raw.gz coreos.inst.ignition_url=http://192.168.1.1:8000/ignition/bootstrap.ign
+initrd ${base-url}/install/rhcos-installer-initramfs.img 
+boot || goto failed
+
+:master
+set base-url http://192.168.1.1:8000
+kernel ${base-url}/install/rhcos-installer-kernel initrd=rhcos-installer-initramfs.img ip=dhcp rd.neednet=1 coreos.inst=yes coreos.inst.install_dev=sda coreos.first_boot=1 coreos.inst.image_url=http://192.168.1.1:8000/install/rhcos-metal.raw.gz coreos.inst.ignition_url=http://192.168.1.1:8000/ignition/master.ign
+initrd ${base-url}/install/rhcos-installer-initramfs.img 
+boot || goto failed
+
+:worker
+set base-url http://192.168.1.1:8000
+kernel ${base-url}/install/rhcos-installer-kernel initrd=rhcos-installer-initramfs.img ip=dhcp rd.neednet=1 coreos.inst=yes coreos.inst.install_dev=sda coreos.first_boot=1 coreos.inst.image_url=http://192.168.1.1:8000/install/rhcos-metal.raw.gz coreos.inst.ignition_url=http://192.168.1.1:8000/ignition/worker.ign
+initrd ${base-url}/install/rhcos-installer-initramfs.img 
+boot || goto failed
