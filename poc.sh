@@ -128,7 +128,7 @@ customizations () {
 
     # echo "Updating Bootstrap Ignition file to apply NetworkManager patch"
     # mv ${POCDIR}/bootstrap.ign ${POCDIR}/bootstrap.ign-bkup
-    #./utils/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign
+    #./utils/scripts/patch-systemd-units.py -i ./${POCDIR}/bootstrap.ign-bkup -p ./utils/nm-patch.json > ./${POCDIR}/bootstrap.ign
 
     # Check if there are additional configuration customizations for bootstrap.ign
     if [[ -d ./customizations/bootstrap ]]; then
