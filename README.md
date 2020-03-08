@@ -1,6 +1,6 @@
-# OpenShift 4.2 UPI bare-metal (using PXE boot)
+# OpenShift 4.2/4.3 UPI bare-metal (using PXE boot)
 
-This is a reference documentation for POCs of OpenShift 4.2 UPI bare-metal deployment using PXE Boot.
+This is a reference documentation for POCs of OpenShift 4.2/4.3 UPI bare-metal deployment using PXE Boot.
 
 The initial deployment is as per the following diagram 
 
@@ -26,13 +26,13 @@ The initial deployment is as per the following diagram
 5. Power up the Master Nodes and PXE install the RHCOS
 ```
 # Monitor bootstrap progress:
-./poc.sh bootstrap
+./poc.sh debug_bootstrap
 ```
 6. Once bootstrap complete, shutdown Bootstrap Node
 7. Power up the Worker Nodes and PXE install 
 ```
 # Monitor OCP install
-./poc.sh install
+./poc.sh debug_install
 ```
 8. Monitor CSR requests from the Worker Nodes and accept the certificates
 

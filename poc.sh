@@ -5,11 +5,11 @@
 
 OCP_RELEASE_PATH=ocp          # valid options are "ocp" or "ocp-dev-preview"
 # Must match directory at: https://mirror.openshift.com/pub/openshift-v4/clients/${OCP_RELEASE_PATH}
-OCP_SUBRELEASE=4.2.7
+OCP_SUBRELEASE=4.3.5
 
 # Must match directory at https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/
-RHCOS_RELEASE=4.2               # "4.2" for latest stable,  "pre-release" for nightly
-RHCOS_IMAGE_BASE=4.2.0-x86_64   # "4.2.0-x86_64" for latest stable, "42.80.20191002.0" for nightly 	
+RHCOS_RELEASE=4.3               # "4.3" for latest stable,  "pre-release" for nightly
+RHCOS_IMAGE_BASE=4.3.0-x86_64   # "4.3.0-x86_64" for latest stable, "42.80.20191002.0" for nightly 	
 
 # ancillary services
 WEBROOT=/opt/nginx/html
@@ -23,7 +23,7 @@ POCDIR=ocp4poc
 #LAST_3_OCP_RELEASES=$(curl -s https://quay.io/api/v1/repository/${UPSTREAM_REPO}/ocp-release/tag/\?limit=3\&page=1\&onlyActiveTags=true | jq -r '.tags[].name')
 
 AIRGAP_REG='registry.ocp4poc.example.com:5000'
-AIRGAP_REPO='ocp4/openshift4'
+AIRGAP_REPO='ocp4/ocp-release'
 
 UPSTREAM_REPO='openshift-release-dev'
 RELEASE_NAME='ocp-release'
@@ -37,8 +37,8 @@ AIRGAP_SECRET_JSON='pull-secret-2.json'
 ##############################################################
 
 usage() {
-    echo -e "Usage: $0 [ clean | ignition | custom | prep_ign | bootstrap | install | approve ] "
-    echo -e "\t\t(extras) [ get_images | prep_installer | prep_images ]"
+    echo -e "Usage: $0 [ clean | ignition | custom | prep_ign | approve ] "
+    echo -e "\t\t(extras) [ mirror | get_images | prep_installer | prep_images | debug_bootstrap | debug_install ]"
 }
 
 get_images() {
@@ -232,10 +232,10 @@ case $key in
     prep_images)
         prep_images
         ;;
-    bootstrap)
+    debug_bootstrap|bootstrap)
         bootstrap
         ;;
-    install)
+    debug_install|install)
         install
         ;;
     approve)
