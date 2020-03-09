@@ -11,12 +11,16 @@ controlPlane:
 metadata:
   name: ocp4poc 
 networking:
+#  networkType: OpenShiftSDN
+  networkType: OVNKubernetes
   clusterNetworks:
   - cidr: 10.128.0.0/14 
     hostPrefix: 23 
-  networkType: OpenShiftSDN
   serviceNetwork: 
   - 172.30.0.0/16
+#  machineCIDR: 192.168.1.0/24.
+#  externalIP:
+#    policy: {}
 platform:
   none: {}
 sshKey: 'ssh-ed25519 AAAA...' 
