@@ -3,18 +3,17 @@
 # UPDATE TO MATCH YOUR ENVIRONMENT
 ##############################################################
 
-OCP_RELEASE_PATH=ocp          # valid options are "ocp" or "ocp-dev-preview"
 # Must match directory at: https://mirror.openshift.com/pub/openshift-v4/clients/${OCP_RELEASE_PATH}
-OCP_SUBRELEASE=4.3.5
+OCP_RELEASE_PATH=ocp # valid options are "ocp" or "ocp-dev-preview"
+OCP_SUBRELEASE=4.6.0-rc.3
 
 # Must match directory at https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/
-RHCOS_RELEASE=4.3               # "4.3" for latest stable,  "pre-release" for nightly
-RHCOS_IMAGE_BASE=4.3.0-x86_64   # "4.3.0-x86_64" for latest stable, "42.80.20191002.0" for nightly 	
+RHCOS_RELEASE=pre-release       # "4.5" for latest stable,  "pre-release" for nightly
 
 # ancillary services
 WEBROOT=/opt/nginx/html
-TFTPROOT=/var/lib/tftpboot
-POCDIR=ocp4poc
+TFTPROOT=/opt/dnsmasq		# Using dnsmasq container as tftpserver, otherwise /tftpboot or /var/lib/tftpboot
+POCDIR=ocp4
 
 #############################################################
 # EXPERIMENTAL
@@ -44,16 +43,14 @@ usage() {
 get_images() {
     mkdir images ; cd images 
     
-    # https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.2/4.2.0/
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-${RHCOS_IMAGE_BASE}-installer-initramfs.img
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-${RHCOS_IMAGE_BASE}-installer-kernel
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-${RHCOS_IMAGE_BASE}-metal-bios.raw.gz
-    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-${RHCOS_IMAGE_BASE}-metal-uefi.raw.gz
+    # https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-live-initramfs.x86_64.img
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-live-kernel-x86_64
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-live-rootfs.x86_64.img
 
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-${RHCOS_IMAGE_BASE}-installer.iso
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-${RHCOS_IMAGE_BASE}-openstack.qcow2
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-${RHCOS_IMAGE_BASE}-qemu.qcow2
-    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-${RHCOS_IMAGE_BASE}-vmware.ova
+    curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-live.x86_64.iso
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-metal.x86_64.raw.gz
+    #curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/${RHCOS_RELEASE}/latest/rhcos-qemu.x86_64.qcow2.gz
 
     # https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.2.0/
     curl -J -L -O https://mirror.openshift.com/pub/openshift-v4/clients/${OCP_RELEASE_PATH}/${OCP_SUBRELEASE}/openshift-client-linux-${OCP_SUBRELEASE}.tar.gz 
@@ -162,23 +159,27 @@ prep_installer () {
 }
 
 prep_images () {
-    echo "Copying RHCOS OS Images to ${WEBROOT}"
-    mkdir ${WEBROOT}/metal/
-    cp -f ./images/rhcos-${RHCOS_IMAGE_BASE}-metal-bios.raw.gz ${WEBROOT}/metal/
-    cp -f ./images/rhcos-${RHCOS_IMAGE_BASE}-metal-uefi.raw.gz ${WEBROOT}/metal/
-    tree ${WEBROOT}/metal/
+    mkdir ${WEBROOT}/rhcos/
 
-    echo "Copying RHCOS PXE Boot Images to ${TFTPROOT}"
-    mkdir ${TFTPROOT}/rhcos/
-    cp ./images/rhcos-${RHCOS_IMAGE_BASE}-installer-initramfs.img ${TFTPROOT}/rhcos/rhcos-initramfs.img
-    cp ./images/rhcos-${RHCOS_IMAGE_BASE}-installer-kernel ${TFTPROOT}/rhcos/rhcos-kernel
-    tree ${TFTPROOT}/rhcos/
+    if [[ -f ./images/rhcos-metal.x86_64.raw.gz ]]; then
+        echo "Copying RHCOS OS Image to ${WEBROOT}"
+        cp -f ./images/rhcos-metal.x86_64.raw.gz ${WEBROOT}/rhcos/
+    fi
+
+    echo "Copying RHCOS PXE Boot Images to ${WEBROOT}"
+    cp -f ./images/rhcos-live-rootfs.x86_64.img    ${WEBROOT}/rhcos/rhcos-live-rootfs
+    cp -f ./images/rhcos-live-initramfs.x86_64.img ${WEBROOT}/rhcos/rhcos-initramfs.img
+    cp -f ./images/rhcos-live-kernel-x86_64        ${WEBROOT}/rhcos/rhcos-kernel
+
+    tree ${WEBROOT}/rhcos/
 }
 
 prep_ign () {
     echo "Installing Ignition files into web path"
-    cp -f ${POCDIR}/*.ign ${WEBROOT}
-    tree ${WEBROOT}
+    mkdir ${WEBROOT}/ignition/
+    cp -f ${POCDIR}/*.ign ${WEBROOT}/ignition/
+    chmod +r ${WEBROOT}/ignition/*.ign
+    tree ${WEBROOT}/ignition
 }
 
 bootstrap () {
