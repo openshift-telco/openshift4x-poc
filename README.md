@@ -1,10 +1,8 @@
 # OpenShift 4.6 UPI bare-metal (using PXE boot)
 
-<<<<<<< HEAD
 ```bash
 NOTE: THIS REPO IS NOT LONGER MAINTAINED OR UPDATED. IT IS HERE FOR HISTORICAL REFERNCES
 ```
-
 
 > :heavy_exclamation_mark: *Red Hat does not provide commercial support for the content of this repo*
 
@@ -18,10 +16,7 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ##############################################################################
 ```
 
-This is a reference documentation for POCs of OpenShift 4.2/4.3 UPI bare-metal deployment using PXE Boot.
-=======
 This is a reference documentation for POCs of OpenShift 4.6 UPI bare-metal deployment using PXE Boot.
->>>>>>> 91e6db7201a3c2bac021fb217b54037cd5e78b6c
 
 The initial deployment is as per the following diagram 
 
