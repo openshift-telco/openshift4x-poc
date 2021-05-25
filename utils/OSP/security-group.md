@@ -34,3 +34,9 @@ openstack security group rule create --ingress --dst-port 6443  --protocol tcp -
 openstack security group rule create --ingress --dst-port 80    --protocol tcp --remote-ip ${OSP_EXT_NET} ocp-cluster-sg
 openstack security group rule create --ingress --dst-port 443   --protocol tcp --remote-ip ${OSP_EXT_NET} ocp-cluster-sg
 ```
+
+## If using secondary networks with MACVLAN
+
+```bash
+openstack port set --no-security-group --disable-port-security <id or name of the neutron port>
+```
