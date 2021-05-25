@@ -1,0 +1,54 @@
+UI vesamenu.c32
+#DEFAULT menu.c32
+DEFAULT LOCAL
+PROMPT 0
+#TIMEOUT 200
+TIMEOUT 100
+ONTIMEOUT LOCAL
+
+#MENU BACKGROUND rhcos/ocp4.png
+MENU TITLE PXE BOOT MENU
+
+LABEL WORKER
+  MENU LABEL ^1 WORKER
+  KERNEL http://198.18.100.24:8080/rhcos/rhcos-kernel
+  APPEND rd.neednet=1 initrd=http://198.18.100.24:8080/rhcos/rhcos-initramfs.img console=tty0,115200n8 coreos.inst=yes coreos.inst.install_dev=/dev/vda coreos.inst.ignition_url=http://198.18.100.24:8080/ignition/worker.ign coreos.live.rootfs_url=http://198.18.100.24:8080/rhcos/rhcos-live-rootfs ip=dhcp
+
+LABEL MASTER
+  MENU LABEL ^2 MASTER
+  KERNEL http://198.18.100.24:8080/rhcos/rhcos-kernel
+  APPEND rd.neednet=1 initrd=http://198.18.100.24:8080/rhcos/rhcos-initramfs.img console=tty0,115200n8 coreos.inst=yes coreos.inst.install_dev=/dev/sda coreos.inst.ignition_url=http://198.18.100.24:8080/ignition/master.ign coreos.live.rootfs_url=http://198.18.100.24:8080/rhcos/rhcos-live-rootfs ip=dhcp
+
+LABEL BOOTSTRAP
+  MENU LABEL ^3 BOOTSTRAP
+  KERNEL http://198.18.100.24:8080/rhcos/rhcos-kernel
+  APPEND rd.neednet=1 initrd=http://198.18.100.24:8080/rhcos/rhcos-initramfs.img console=tty0,115200n8 coreos.inst=yes coreos.inst.install_dev=/dev/vda coreos.inst.ignition_url=http://198.18.100.24:8080/ignition/bootstrap.ign coreos.live.rootfs_url=http://198.18.100.24:8080/rhcos/rhcos-live-rootfs ip=dhcp
+
+LABEL LOCAL
+  MENU LABEL ^4 BOOT FROM LOCAL DISK
+  MENU DEFAULT
+  LOCALBOOT 0
+
+###########################################################
+# SECTION FOR ADVANCED TROUBLESHOOTING
+# man dracut.cmdline for options
+###########################################################
+LABEL DRACUT1
+  MENU LABEL ^8 DRACUT (initqueue)
+  KERNEL http://198.18.100.24:8080/rhcos/rhcos-kernel
+  APPEND rd.break=initqueue  rd.neednet=1 initrd=http://198.18.100.24:8080/rhcos/rhcos-initramfs.img console=tty0,115200n8 ip=dhcp
+
+# NOTES: Using rd.break=initqueue
+# Identify disk: lsblk
+# Mount root partition: mkdir /mnt ; mount /dev/vda2 /mnt ; cd /mnt
+
+LABEL DRACUT2
+  MENU LABEL ^9 DRACUT (pre-mount)
+  KERNEL http://198.18.100.24:8080/rhcos/rhcos-kernel
+  APPEND rd.break=pre-mount  rd.neednet=1 initrd=http://198.18.100.24:8080/rhcos/rhcos-initramfs.img console=tty0,115200n8 ip=dhcp
+
+# NOTES: Using rd.break=pre-mount
+# cat /proc/cmdline
+###########################################################
+# END OF FILE
+###########################################################

@@ -1,0 +1,2 @@
+# Source this file to get definition
+export KUBECONFIG=`pwd`/ocp4/auth/kubeconfig

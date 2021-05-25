@@ -1,5 +1,6 @@
-# OpenShift 4.2/4.3 UPI bare-metal (using PXE boot)
+# OpenShift 4.6 UPI bare-metal (using PXE boot)
 
+<<<<<<< HEAD
 ```bash
 NOTE: THIS REPO IS NOT LONGER MAINTAINED OR UPDATED. IT IS HERE FOR HISTORICAL REFERNCES
 ```
@@ -18,6 +19,9 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ```
 
 This is a reference documentation for POCs of OpenShift 4.2/4.3 UPI bare-metal deployment using PXE Boot.
+=======
+This is a reference documentation for POCs of OpenShift 4.6 UPI bare-metal deployment using PXE Boot.
+>>>>>>> 91e6db7201a3c2bac021fb217b54037cd5e78b6c
 
 The initial deployment is as per the following diagram 
 
@@ -83,13 +87,14 @@ $ ./oc adm certificate approve <crt-name>
 
 Modify the following environment variables of `./poc.sh` script to match your environment.
 ```
-OCP_RELEASE=4.2
-OCP_SUBRELEASE=4.2.0
-RHCOS_IMAGE_BASE=4.2.0-x86_64
+OCP_RELEASE_PATH=ocp # valid options are "ocp" or "ocp-dev-preview"
+OCP_SUBRELEASE=4.6.0-rc.3
+
+RHCOS_RELEASE=pre-release       # "4.5" for latest stable,  "pre-release" for nightly
 
 WEBROOT=/opt/nginx/html
-TFTPROOT=/var/lib/tftpboot
-POCDIR=ocp4poc
+TFTPROOT=/opt/dnsmasq           # Using dnsmasq container as tftpserver, otherwise /tftpboot or /var/lib/tftpboot
+POCDIR=ocp4
 ```
 ***NOTE:*** Next instructions assume this has been customized. 
 
@@ -217,11 +222,12 @@ NOTE: Update `/var/lib/tftpboot/pxelinux.cfg/default` to match environment.
   
     ```
     images/
-    ├── openshift-client-linux-4.2.0-0.nightly-2019-10-01-210901.tar.gz
-    ├── openshift-install-linux-4.2.0-0.nightly-2019-10-01-210901.tar.gz
-    ├── rhcos-42.80.20190828.2-installer-initramfs.img
-    ├── rhcos-42.80.20190828.2-installer-kernel
-    └── rhcos-42.80.20190828.2-metal-bios.raw.gz
+    ├── openshift-client-linux-4.6.0-rc.3.tar.gz
+    ├── openshift-install-linux-4.6.0-rc.3.tar.gz
+    ├── rhcos-live-initramfs.x86_64.img
+    ├── rhcos-live-kernel-x86_64
+    ├── rhcos-live-rootfs.x86_64.img
+    └── rhcos-live.x86_64.iso
     ```
 
 3. Open the `openshift-client-linux-<release>.tar.gz` and the `openshift-install-linux-<release>.tar.gz` into your current directory. This will provide the `openshift-installer`, `oc` and `kubectl` binaries.
@@ -242,7 +248,7 @@ NOTE: Update `/var/lib/tftpboot/pxelinux.cfg/default` to match environment.
 
 ```
 firewall-cmd --zone=public   --change-interface=eth0
-firewall-cmd --zone=internal --change-interface=eth1
+firewall-cmd --zone=trusted  --change-interface=eth1
 
 firewall-cmd --get-active-zones
 
@@ -252,19 +258,10 @@ firewall-cmd --zone=public   --permanent --add-service=http
 firewall-cmd --zone=public   --permanent --add-service=https
 firewall-cmd --zone=public   --permanent --add-service=dns
 
-firewall-cmd --zone=internal --permanent --add-port=6443/tcp
-firewall-cmd --zone=internal --permanent --add-port=22623/tcp
-firewall-cmd --zone=internal --permanent --add-service=http
-firewall-cmd --zone=internal --permanent --add-service=https
-firewall-cmd --zone=internal --permanent --add-port=69/udp
-firewall-cmd --zone=internal --permanent --add-port=8000/tcp
-firewall-cmd --zone=internal --permanent --add-service=dns
-firewall-cmd --zone=internal --permanent --add-service=dhcp
-
 firewall-cmd --reload
 
-firewall-cmd --zone=internal  --list-services
-firewall-cmd --zone=internal  --list-ports
+firewall-cmd --zone=public   --list-services
+firewall-cmd --zone=public   --list-ports
 
 ```
 
@@ -336,34 +333,37 @@ firewall-cmd --zone=internal  --list-ports
 # export KUBECONFIG=`pwd`/ocp4poc/auth/kubeconfig
 
 # oc get co
-NAME                                       VERSION   AVAILABLE   PROGRESSING   DEGRADED   SINCE
-authentication                             4.2.0     True        False         False      9m43s
-cloud-credential                           4.2.0     True        False         False      24m
-cluster-autoscaler                         4.2.0     True        False         False      16m
-console                                    4.2.0     True        False         False      10m
-dns                                        4.2.0     True        False         False      23m
-image-registry                             4.2.0     True        False         False      4m47s
-ingress                                    4.2.0     True        False         False      16m
-insights                                   4.2.0     True        False         False      24m
-kube-apiserver                             4.2.0     True        False         False      21m
-kube-controller-manager                    4.2.0     True        False         False      21m
-kube-scheduler                             4.2.0     True        False         False      20m
-machine-api                                4.2.0     True        False         False      24m
-machine-config                             4.2.0     True        False         False      22m
-marketplace                                4.2.0     True        False         False      17m
-monitoring                                 4.2.0     True        False         False      12m
-network                                    4.2.0     True        False         False      21m
-node-tuning                                4.2.0     True        False         False      19m
-openshift-apiserver                        4.2.0     True        False         False      20m
-openshift-controller-manager               4.2.0     True        False         False      21m
-openshift-samples                          4.2.0     True        False         False      9m34s
-operator-lifecycle-manager                 4.2.0     True        False         False      22m
-operator-lifecycle-manager-catalog         4.2.0     True        False         False      22m
-operator-lifecycle-manager-packageserver   4.2.0     True        False         False      21m
-service-ca                                 4.2.0     True        False         False      24m
-service-catalog-apiserver                  4.2.0     True        False         False      20m
-service-catalog-controller-manager         4.2.0     True        False         False      19m
-storage                                    4.2.0     True        False         False      18m
+NAME                                       VERSION      AVAILABLE   PROGRESSING   DEGRADED   SINCE
+authentication                             4.6.0-rc.3   True        False         False      8m42s
+cloud-credential                           4.6.0-rc.3   True        False         False      69m
+cluster-autoscaler                         4.6.0-rc.3   True        False         False      63m
+config-operator                            4.6.0-rc.3   True        False         False      65m
+console                                    4.6.0-rc.3   True        False         False      38m
+csi-snapshot-controller                    4.6.0-rc.3   True        False         False      64m
+dns                                        4.6.0-rc.3   True        False         False      63m
+etcd                                       4.6.0-rc.3   True        False         False      63m
+image-registry                             4.6.0-rc.3   True        False         False      45m
+ingress                                    4.6.0-rc.3   True        False         False      42m
+insights                                   4.6.0-rc.3   True        False         False      65m
+kube-apiserver                             4.6.0-rc.3   True        False         False      62m
+kube-controller-manager                    4.6.0-rc.3   True        False         False      62m
+kube-scheduler                             4.6.0-rc.3   True        False         False      62m
+kube-storage-version-migrator              4.6.0-rc.3   True        False         False      16m
+machine-api                                4.6.0-rc.3   True        False         False      63m
+machine-approver                           4.6.0-rc.3   True        False         False      63m
+machine-config                             4.6.0-rc.3   True        False         False      63m
+marketplace                                4.6.0-rc.3   True        False         False      63m
+monitoring                                 4.6.0-rc.3   True        False         False      41m
+network                                    4.6.0-rc.3   True        False         False      65m
+node-tuning                                4.6.0-rc.3   True        False         False      65m
+openshift-apiserver                        4.6.0-rc.3   True        False         False      44m
+openshift-controller-manager               4.6.0-rc.3   True        False         False      63m
+openshift-samples                          4.6.0-rc.3   True        False         False      44m
+operator-lifecycle-manager                 4.6.0-rc.3   True        False         False      64m
+operator-lifecycle-manager-catalog         4.6.0-rc.3   True        False         False      64m
+operator-lifecycle-manager-packageserver   4.6.0-rc.3   True        False         False      42m
+service-ca                                 4.6.0-rc.3   True        False         False      64m
+storage                                    4.6.0-rc.3   True        False         False      65m
 ```
 
 
